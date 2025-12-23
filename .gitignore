@@ -41,6 +41,7 @@ coverage/
 Electro.Api/bin/
 Electro.Api/obj/
 Electro.Api/wwwroot/uploads/
+Electro.Api/wwwroot/**/*.json
 *.user
 *.suo
 
