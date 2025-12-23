@@ -1,0 +1,17 @@
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\Electro.Service.csproj.AssemblyReference.cache
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\Electro.Service.GeneratedMSBuildEditorConfig.editorconfig
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\Electro.Service.AssemblyInfoInputs.cache
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\Electro.Service.AssemblyInfo.cs
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\Electro.Service.csproj.CoreCompileInputs.cache
+F:\api.net projects\Electro\Electro.Service\bin\Debug\net8.0\Electro.Service.deps.json
+F:\api.net projects\Electro\Electro.Service\bin\Debug\net8.0\Electro.Service.dll
+F:\api.net projects\Electro\Electro.Service\bin\Debug\net8.0\Electro.Service.pdb
+F:\api.net projects\Electro\Electro.Service\bin\Debug\net8.0\Electro.Core.dll
+F:\api.net projects\Electro\Electro.Service\bin\Debug\net8.0\Electro.Reposatory.dll
+F:\api.net projects\Electro\Electro.Service\bin\Debug\net8.0\Electro.Core.pdb
+F:\api.net projects\Electro\Electro.Service\bin\Debug\net8.0\Electro.Reposatory.pdb
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\Electro..93868303.Up2Date
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\Electro.Service.dll
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\refint\Electro.Service.dll
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\Electro.Service.pdb
+F:\api.net projects\Electro\Electro.Service\obj\Debug\net8.0\ref\Electro.Service.dll

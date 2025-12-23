@@ -1,0 +1,12 @@
+F:\api.net projects\Electro\Electro.Core\bin\Debug\net8.0\Electro.Core.deps.json
+F:\api.net projects\Electro\Electro.Core\bin\Debug\net8.0\Electro.Core.dll
+F:\api.net projects\Electro\Electro.Core\bin\Debug\net8.0\Electro.Core.pdb
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\Electro.Core.csproj.AssemblyReference.cache
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\Electro.Core.GeneratedMSBuildEditorConfig.editorconfig
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\Electro.Core.AssemblyInfoInputs.cache
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\Electro.Core.AssemblyInfo.cs
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\Electro.Core.csproj.CoreCompileInputs.cache
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\Electro.Core.dll
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\refint\Electro.Core.dll
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\Electro.Core.pdb
+F:\api.net projects\Electro\Electro.Core\obj\Debug\net8.0\ref\Electro.Core.dll

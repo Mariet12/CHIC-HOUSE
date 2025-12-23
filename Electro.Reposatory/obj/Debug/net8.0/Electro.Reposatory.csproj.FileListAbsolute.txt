@@ -1,0 +1,17 @@
+F:\api.net projects\Electro\Electro.Reposatory\bin\Debug\net8.0\Electro.Reposatory.deps.json
+F:\api.net projects\Electro\Electro.Reposatory\bin\Debug\net8.0\Electro.Reposatory.dll
+F:\api.net projects\Electro\Electro.Reposatory\bin\Debug\net8.0\Electro.Reposatory.pdb
+F:\api.net projects\Electro\Electro.Reposatory\bin\Debug\net8.0\Electro.Core.dll
+F:\api.net projects\Electro\Electro.Reposatory\bin\Debug\net8.0\Electro.Core.pdb
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro.Reposatory.csproj.AssemblyReference.cache
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro.Reposatory.GeneratedMSBuildEditorConfig.editorconfig
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro.Reposatory.AssemblyInfoInputs.cache
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro.Reposatory.AssemblyInfo.cs
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro.Reposatory.csproj.CoreCompileInputs.cache
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro..F2F7CA55.Up2Date
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro.Reposatory.dll
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\refint\Electro.Reposatory.dll
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro.Reposatory.pdb
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\ref\Electro.Reposatory.dll
+F:\api.net projects\Electro\Electro.Reposatory\bin\Debug\net8.0\Electro.Reposatory.runtimeconfig.json
+F:\api.net projects\Electro\Electro.Reposatory\obj\Debug\net8.0\Electro.Reposatory.genruntimeconfig.cache
