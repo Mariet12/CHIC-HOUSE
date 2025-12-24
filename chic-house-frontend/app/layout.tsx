@@ -45,6 +45,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
+      <head>
+        <link rel="icon" href="/logo/chic-house-logo.png.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo/chic-house-logo.png.png" />
+      </head>
       <body className={`${inter.variable} ${poppins.variable} ${bubble.variable} font-sans`}>
         <AuthProvider>
           <CartProvider>
