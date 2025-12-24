@@ -32,5 +32,16 @@
 
 ---
 
+## إعادة النشر (Redeployment)
+
+**بعد أول deployment، أي commit جديد على GitHub هيحفز deployment تلقائي!**
+
+لعمل redeploy يدوي:
+- روحي لـ Vercel Dashboard → Deployments → Redeploy
+
+**للمزيد من التفاصيل:** شوفي ملف `REDEPLOY.md`
+
+---
+
 **ملاحظة:** الـ `.env.local` مش محتاج نرفعه، لأن Vercel هيسألك عن الـ Environment Variables أثناء الـ setup.
 
