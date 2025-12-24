@@ -28,8 +28,13 @@ export const metadata: Metadata = {
   title: "Chic House - هدايا وديكور منزلي",
   description: "متجر Chic House للهدايا اليدوية وديكورات المنزل والمناسبات",
   icons: {
-    icon: "/logo/chic-house-logo.png.png",
-    apple: "/logo/chic-house-logo.png.png",
+    icon: [
+      { url: "/logo/chic-house-logo.png.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/logo/chic-house-logo.png.png", type: "image/png" },
+    ],
+    shortcut: "/logo/chic-house-logo.png.png",
   },
   openGraph: {
     title: "Chic House - هدايا وديكور منزلي",
@@ -45,10 +50,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <head>
-        <link rel="icon" href="/logo/chic-house-logo.png.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/logo/chic-house-logo.png.png" />
-      </head>
       <body className={`${inter.variable} ${poppins.variable} ${bubble.variable} font-sans`}>
         <AuthProvider>
           <CartProvider>
