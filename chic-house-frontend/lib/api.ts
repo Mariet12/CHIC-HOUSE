@@ -10,18 +10,19 @@ const API_URL =
 export function fixImageUrl(imageUrl: string | null | undefined): string | null {
   if (!imageUrl) return null;
   
-  // لو الـ API شغال على localhost لكن الـ URL بيشاور على سيرفر بعيد، نستبدله بـ localhost
+  // لو الـ URL كامل بالفعل (يبدأ بـ http:// أو https://)، نرجعه كما هو
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // لو الـ URL مش كامل، نستخدم الـ BaseURL من الـ environment
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5008/api";
-  if (apiBaseUrl.includes('localhost') && imageUrl.includes('kerolosadel12-002-site1.qtempurl.com')) {
-    return imageUrl.replace('https://kerolosadel12-002-site1.qtempurl.com', 'http://localhost:5008');
-  }
   
-  // لو الـ URL مش كامل، نضيف localhost
-  if (!imageUrl.startsWith('http')) {
-    return `http://localhost:5008${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
-  }
+  // استخراج الـ base URL بدون /api
+  let baseUrl = apiBaseUrl.replace('/api', '');
   
-  return imageUrl;
+  // إضافة الـ imageUrl للـ base URL
+  return `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
 }
 
 const apiClient = axios.create({
