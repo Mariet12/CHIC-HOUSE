@@ -27,6 +27,15 @@ const bubble = Bubblegum_Sans({
 export const metadata: Metadata = {
   title: "Chic House - هدايا وديكور منزلي",
   description: "متجر Chic House للهدايا اليدوية وديكورات المنزل والمناسبات",
+  icons: {
+    icon: "/logo/chic-house-logo.png.png",
+    apple: "/logo/chic-house-logo.png.png",
+  },
+  openGraph: {
+    title: "Chic House - هدايا وديكور منزلي",
+    description: "متجر Chic House للهدايا اليدوية وديكورات المنزل والمناسبات",
+    images: ["/logo/chic-house-logo.png.png"],
+  },
 };
 
 export default function RootLayout({
