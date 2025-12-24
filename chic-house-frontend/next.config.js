@@ -10,6 +10,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'elctroapp.runasp.net',
       },
+      {
+        protocol: 'https',
+        hostname: 'chic-house.runasp.net',
+      },
     ],
     unoptimized: false, // يمكن تغييره إلى true إذا كانت الصور لا تعمل
   },
