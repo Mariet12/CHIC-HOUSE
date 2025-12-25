@@ -27,14 +27,8 @@ const bubble = Bubblegum_Sans({
 export const metadata: Metadata = {
   title: "Chic House - هدايا وديكور منزلي",
   description: "متجر Chic House للهدايا اليدوية وديكورات المنزل والمناسبات",
-  icons: {
-    icon: [
-      { url: "/logo/chic-house-logo.png.png", sizes: "any" },
-      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
-    ],
-    shortcut: "/favicon.ico",
-    apple: "/logo/chic-house-logo.png.png",
-  },
+  // Next.js 13+ automatically detects icon.png and apple-icon.png in app folder
+  // No need to specify in metadata if files exist in app folder
   openGraph: {
     title: "Chic House - هدايا وديكور منزلي",
     description: "متجر Chic House للهدايا اليدوية وديكورات المنزل والمناسبات",
