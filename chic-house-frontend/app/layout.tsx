@@ -28,13 +28,9 @@ export const metadata: Metadata = {
   title: "Chic House - هدايا وديكور منزلي",
   description: "متجر Chic House للهدايا اليدوية وديكورات المنزل والمناسبات",
   icons: {
-    icon: [
-      { url: "/logo/chic-house-logo.png.png", type: "image/png" },
-    ],
-    apple: [
-      { url: "/logo/chic-house-logo.png.png", type: "image/png" },
-    ],
-    shortcut: "/logo/chic-house-logo.png.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/logo/chic-house-logo.png.png",
   },
   openGraph: {
     title: "Chic House - هدايا وديكور منزلي",
