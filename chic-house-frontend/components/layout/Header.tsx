@@ -87,7 +87,7 @@ export default function Header() {
               <Heart className="w-6 h-6 text-brandSand" />
             </Link>
 
-            <Link href="/chat" className="relative hidden md:inline-flex">
+            <Link href="/chat" className="relative">
               <MessageCircle className="w-6 h-6 text-brandSand" />
             </Link>
             
