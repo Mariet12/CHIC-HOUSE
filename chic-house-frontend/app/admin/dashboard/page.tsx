@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Link href="/admin/categories" className="block hover:-translate-y-1 transition-transform duration-200">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
             <div>
@@ -145,6 +145,17 @@ export default function AdminDashboardPage() {
             </div>
             <div className="text-[#3b82f6] bg-[#e5f0ff] p-3 rounded-xl">
               <Truck className="w-8 h-8" />
+            </div>
+          </div>
+        </Link>
+        <Link href="/admin/users/add" className="block hover:-translate-y-1 transition-transform duration-200">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold text-primary mb-2">إضافة أدمن</h3>
+              <p className="text-gray-600">إضافة مستخدم جديد كأدمن</p>
+            </div>
+            <div className="text-[#f59e0b] bg-[#fef3c7] p-3 rounded-xl">
+              <Users className="w-8 h-8" />
             </div>
           </div>
         </Link>

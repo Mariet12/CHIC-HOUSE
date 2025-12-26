@@ -1791,10 +1791,6 @@
             "version": "[8.0.17, 8.0.17]"
           },
           {
-            "name": "Microsoft.Net.Sdk.Compilers.Toolset",
-            "version": "[9.0.205, 9.0.205]"
-          },
-          {
             "name": "Microsoft.NETCore.App.Ref",
             "version": "[8.0.17, 8.0.17]"
           },

@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { favoritesApi, fixImageUrl } from "@/lib/api";
 import toast from "react-hot-toast";
+import ImageModal from "@/components/common/ImageModal";
 
 interface Product {
   id: number;
@@ -25,6 +26,8 @@ export default function ProductCard({ product }: { product: Product }) {
   const { token } = useAuth();
   const [isFavorite, setIsFavorite] = useState(product.isFavorite);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Debug: اطبع بيانات المنتج لمعرفة هيكل الصور
   React.useEffect(() => {
@@ -67,45 +70,54 @@ export default function ProductCard({ product }: { product: Product }) {
     await addToCart(product.id, 1);
   };
 
+  const handleImageClick = (e: React.MouseEvent, imageUrl: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedImage(imageUrl);
+    setIsModalOpen(true);
+  };
+
   return (
-    <Link href={`/products/${product.id}`}>
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-xl transition-smooth group border border-secondary-dark/50">
-        <div className="relative h-48 sm:h-56 md:h-64 bg-secondary overflow-hidden flex items-center justify-center">
-          {(() => {
-            const rawImageUrl = product.firstImageUrl || 
-                            (product as any).images?.[0]?.imageUrl ||
-                            (product as any).images?.[0]?.ImageUrl;
-            
-            // استخدام دالة fixImageUrl لتصحيح الـ URL
-            const imageUrl = fixImageUrl(rawImageUrl);
-            
-            return imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={product.name_Ar}
-                className="w-full h-full object-contain group-hover:scale-105 transition-smooth"
-                onError={(e) => {
-                  console.warn(`⚠️ Image not found for product ${product.id}: ${imageUrl}`);
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                  const parent = target.parentElement;
-                  if (parent && !parent.querySelector(".image-placeholder")) {
-                    const placeholder = document.createElement("div");
-                    placeholder.className = "image-placeholder w-full h-full flex items-center justify-center text-primary bg-gray-100";
-                    placeholder.textContent = "لا توجد صورة";
-                    parent.appendChild(placeholder);
-                  }
-                }}
-                onLoad={() => {
-                  console.log(`✅ Image loaded: Product ${product.id}`);
-                }}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-primary bg-gray-100">
-                لا توجد صورة
-              </div>
-            );
-          })()}
+    <>
+      <Link href={`/products/${product.id}`}>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-xl transition-smooth group border border-secondary-dark/50">
+          <div className="relative h-48 sm:h-56 md:h-64 bg-secondary overflow-hidden flex items-center justify-center">
+            {(() => {
+              const rawImageUrl = product.firstImageUrl || 
+                              (product as any).images?.[0]?.imageUrl ||
+                              (product as any).images?.[0]?.ImageUrl;
+              
+              // استخدام دالة fixImageUrl لتصحيح الـ URL
+              const imageUrl = fixImageUrl(rawImageUrl);
+              
+              return imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={product.name_Ar}
+                  className="w-full h-full object-contain group-hover:scale-105 transition-smooth cursor-pointer"
+                  onClick={(e) => handleImageClick(e, imageUrl)}
+                  onError={(e) => {
+                    console.warn(`⚠️ Image not found for product ${product.id}: ${imageUrl}`);
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                    const parent = target.parentElement;
+                    if (parent && !parent.querySelector(".image-placeholder")) {
+                      const placeholder = document.createElement("div");
+                      placeholder.className = "image-placeholder w-full h-full flex items-center justify-center text-primary bg-gray-100";
+                      placeholder.textContent = "لا توجد صورة";
+                      parent.appendChild(placeholder);
+                    }
+                  }}
+                  onLoad={() => {
+                    console.log(`✅ Image loaded: Product ${product.id}`);
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-primary bg-gray-100">
+                  لا توجد صورة
+                </div>
+              );
+            })()}
           <button
             onClick={handleFavorite}
             disabled={isLoading}
@@ -153,6 +165,20 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
       </div>
     </Link>
+
+    {/* Image Modal */}
+    {selectedImage && (
+      <ImageModal
+        imageUrl={selectedImage}
+        alt={product.name_Ar}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedImage(null);
+        }}
+      />
+    )}
+    </>
   );
 }
 

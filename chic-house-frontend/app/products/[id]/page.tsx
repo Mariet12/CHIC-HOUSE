@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { favoritesApi } from "@/lib/api";
 import { Heart, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
+import ImageModal from "@/components/common/ImageModal";
 
 export default function ProductDetailsPage() {
   const params = useParams();
@@ -18,6 +19,8 @@ export default function ProductDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchProduct();
@@ -84,7 +87,13 @@ export default function ProductDetailsPage() {
             const firstImageUrl = fixImageUrl(rawFirstImageUrl);
             
             return firstImageUrl ? (
-              <div className="relative w-full h-64 sm:h-80 md:h-96 bg-secondary-light rounded-lg overflow-hidden border border-secondary-dark flex items-center justify-center">
+              <div 
+                className="relative w-full h-64 sm:h-80 md:h-96 bg-secondary-light rounded-lg overflow-hidden border border-secondary-dark flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => {
+                  setSelectedImage(firstImageUrl);
+                  setIsModalOpen(true);
+                }}
+              >
                 <img
                   src={firstImageUrl}
                   alt={product.name_Ar}
@@ -117,7 +126,14 @@ export default function ProductDetailsPage() {
                 const imgUrl = fixImageUrl(rawImgUrl);
                 
                 return imgUrl ? (
-                  <div key={img.id} className="relative h-16 sm:h-20 bg-secondary rounded overflow-hidden flex items-center justify-center">
+                  <div 
+                    key={img.id} 
+                    className="relative h-16 sm:h-20 bg-secondary rounded overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => {
+                      setSelectedImage(imgUrl);
+                      setIsModalOpen(true);
+                    }}
+                  >
                     <img
                       src={imgUrl}
                       alt={product.name_Ar}
@@ -209,6 +225,19 @@ export default function ProductDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <ImageModal
+          imageUrl={selectedImage}
+          alt={product.name_Ar}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedImage(null);
+          }}
+        />
+      )}
     </div>
   );
 }

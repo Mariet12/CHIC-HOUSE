@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "3UGTAp4KtuM=",
+  "dgSpecHash": "O0P5f+s3hyk=",
   "success": true,
   "projectFilePath": "C:\\Users\\marie\\Desktop\\HAND MADE\\Electro.Core\\Electro.Core.csproj",
   "expectedPackageFiles": [
@@ -43,9 +43,8 @@
     "C:\\Users\\marie\\.nuget\\packages\\system.reflection.emit\\4.7.0\\system.reflection.emit.4.7.0.nupkg.sha512",
     "C:\\Users\\marie\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
     "C:\\Users\\marie\\.nuget\\packages\\system.threading.channels\\8.0.0\\system.threading.channels.8.0.0.nupkg.sha512",
-    "C:\\Users\\marie\\.nuget\\packages\\microsoft.net.sdk.compilers.toolset\\9.0.205\\microsoft.net.sdk.compilers.toolset.9.0.205.nupkg.sha512",
-    "C:\\Users\\marie\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.17\\microsoft.windowsdesktop.app.ref.8.0.17.nupkg.sha512",
     "C:\\Users\\marie\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.17\\microsoft.netcore.app.ref.8.0.17.nupkg.sha512",
+    "C:\\Users\\marie\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.17\\microsoft.windowsdesktop.app.ref.8.0.17.nupkg.sha512",
     "C:\\Users\\marie\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.17\\microsoft.aspnetcore.app.ref.8.0.17.nupkg.sha512"
   ],
   "logs": []

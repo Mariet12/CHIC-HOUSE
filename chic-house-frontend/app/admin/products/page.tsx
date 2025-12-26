@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { productsApi, categoriesApi, fixImageUrl } from "@/lib/api";
 import toast from "react-hot-toast";
+import ImageModal from "@/components/common/ImageModal";
 
 interface ProductForm {
   id?: number | null;
@@ -22,6 +23,8 @@ export default function AdminProductsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<ProductForm>({
     id: null,
     name: "",
@@ -414,7 +417,13 @@ export default function AdminProductsPage() {
                         }
 
                         return (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded border border-gray-200 overflow-hidden flex items-center justify-center relative">
+                          <div 
+                            className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded border border-gray-200 overflow-hidden flex items-center justify-center relative cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => {
+                              setSelectedImage(fullImageUrl);
+                              setIsModalOpen(true);
+                            }}
+                          >
                             <img
                               src={fullImageUrl}
                               alt={p.name_Ar || p.nameAr || p.name_En || p.nameEn || "Product"}
@@ -464,6 +473,19 @@ export default function AdminProductsPage() {
           </div>
         )}
       </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <ImageModal
+          imageUrl={selectedImage}
+          alt="صورة المنتج"
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedImage(null);
+          }}
+        />
+      )}
     </div>
   );
 }
