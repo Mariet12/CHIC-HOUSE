@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { chatApi } from "@/lib/api";
+import { chatApi, accountApi } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 export default function ChatPage() {
   const { user, token } = useAuth();
@@ -15,17 +16,25 @@ export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [receiverId, setReceiverId] = useState("");
+  const [receiverEmail, setReceiverEmail] = useState("");
   const [loadingNewChat, setLoadingNewChat] = useState(false);
   const [errorNewChat, setErrorNewChat] = useState<string | null>(null);
+  const [adminUsers, setAdminUsers] = useState<any[]>([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isAdmin = user?.role === "Admin";
 
   useEffect(() => {
     if (!token) {
       router.push("/login");
       return;
     }
-    fetchConversations();
-  }, [token]);
+    if (!isAdmin) {
+      fetchAdminUsers();
+    } else {
+      fetchConversations();
+    }
+  }, [token, isAdmin]);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -37,14 +46,47 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages]);
 
-  const fetchConversations = async () => {
+  const fetchConversations = async (adminUsersList?: any[]) => {
     try {
       const response = await chatApi.getAllConversations();
       if (response.data?.data) {
-        setConversations(response.data.data);
+        let filteredConversations = response.data.data;
+        
+        // للمستخدمين العاديين: عرض فقط المحادثات مع الأدمن
+        if (!isAdmin && (adminUsersList || adminUsers).length > 0) {
+          const adminsToCheck = adminUsersList || adminUsers;
+          filteredConversations = filteredConversations.filter((conv: any) => {
+            // التحقق إذا كان الطرف الآخر هو أدمن
+            const otherUserId = conv.senderId === user?.id ? conv.receiverId : conv.senderId;
+            return adminsToCheck.some((admin: any) => admin.id === otherUserId);
+          });
+        }
+        
+        setConversations(filteredConversations);
       }
     } catch (error) {
       console.error("Error fetching conversations:", error);
+    }
+  };
+
+  const fetchAdminUsers = async () => {
+    try {
+      setLoadingAdmins(true);
+      const response = await accountApi.getAllUsers();
+      if (response.data?.data) {
+        // تصفية فقط المستخدمين الأدمن
+        const admins = response.data.data.filter((u: any) => 
+          u.role === "Admin" || u.Role === "Admin"
+        );
+        setAdminUsers(admins);
+        // بعد جلب الأدمن، أعد جلب المحادثات مع قائمة الأدمن
+        await fetchConversations(admins);
+      }
+    } catch (error) {
+      console.error("Error fetching admin users:", error);
+      toast.error("فشل تحميل بيانات الأدمن");
+    } finally {
+      setLoadingAdmins(false);
     }
   };
 
@@ -77,7 +119,60 @@ export default function ChatPage() {
   };
 
   const handleCreateConversation = async () => {
-    if (!receiverId.trim() || !user?.id) return;
+    if (!user?.id) return;
+    
+    // للمستخدمين العاديين: يجب أن يكون المستقبل أدمن
+    if (!isAdmin) {
+      if (!receiverEmail.trim()) {
+        setErrorNewChat("يرجى إدخال إيميل الأدمن");
+        return;
+      }
+      
+      // البحث عن الأدمن بالإيميل
+      const admin = adminUsers.find((a: any) => 
+        a.email?.toLowerCase() === receiverEmail.trim().toLowerCase()
+      );
+      
+      if (!admin) {
+        setErrorNewChat("لم يتم العثور على أدمن بهذا الإيميل");
+        return;
+      }
+      
+      setReceiverId(admin.id);
+    } else {
+      // للأدمن: يمكنهم إدخال ID أو إيميل
+      if (!receiverId.trim() && !receiverEmail.trim()) {
+        setErrorNewChat("يرجى إدخال ID المستخدم أو الإيميل");
+        return;
+      }
+      
+      // إذا كان الإدخال إيميل، البحث عن المستخدم
+      if (receiverEmail.trim() && !receiverId.trim()) {
+        try {
+          const allUsersResponse = await accountApi.getAllUsers();
+          if (allUsersResponse.data?.data) {
+            const foundUser = allUsersResponse.data.data.find((u: any) => 
+              u.email?.toLowerCase() === receiverEmail.trim().toLowerCase()
+            );
+            if (foundUser) {
+              setReceiverId(foundUser.id);
+            } else {
+              setErrorNewChat("لم يتم العثور على مستخدم بهذا الإيميل");
+              return;
+            }
+          }
+        } catch (error) {
+          setErrorNewChat("فشل البحث عن المستخدم");
+          return;
+        }
+      }
+    }
+    
+    if (!receiverId.trim()) {
+      setErrorNewChat("يرجى إدخال ID المستخدم أو الإيميل");
+      return;
+    }
+    
     setLoadingNewChat(true);
     setErrorNewChat(null);
     try {
@@ -93,6 +188,7 @@ export default function ChatPage() {
         if (newConv) setSelectedConversation(newConv);
       }
       setReceiverId("");
+      setReceiverEmail("");
     } catch (error: any) {
       const msg = error.response?.data?.message || "Cannot start conversation";
       setErrorNewChat(msg);
@@ -108,33 +204,67 @@ export default function ChatPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-primary">Chat</h1>
+      <h1 className="text-3xl font-bold mb-8 text-primary text-right">الشات</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[600px]">
         {/* Conversations List */}
         <div className="bg-secondary-light rounded-lg shadow-md p-4 overflow-y-auto border border-secondary-dark">
           <div className="space-y-3">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Start new chat (receiver ID or email)"
-                value={receiverId}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReceiverId(e.target.value)}
-                className="flex-1 px-3 py-2 border rounded-lg"
-              />
+            <div className="space-y-2">
+              {!isAdmin ? (
+                <>
+                  <input
+                    type="email"
+                    placeholder="إيميل الأدمن"
+                    value={receiverEmail}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setReceiverEmail(e.target.value);
+                      setReceiverId("");
+                    }}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <p className="text-xs text-gray-500">
+                    يمكنك الشات مع الأدمن فقط
+                  </p>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    placeholder="ID المستخدم"
+                    value={receiverId}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setReceiverId(e.target.value);
+                      setReceiverEmail("");
+                    }}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <span className="text-xs text-gray-500">أو</span>
+                  <input
+                    type="email"
+                    placeholder="إيميل المستخدم"
+                    value={receiverEmail}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setReceiverEmail(e.target.value);
+                      setReceiverId("");
+                    }}
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                </>
+              )}
               <button
                 onClick={handleCreateConversation}
-                disabled={loadingNewChat}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:opacity-60"
+                disabled={loadingNewChat || loadingAdmins}
+                className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:opacity-60"
               >
-                {loadingNewChat ? "Starting..." : "Start"}
+                {loadingNewChat ? "جاري الإنشاء..." : "بدء محادثة جديدة"}
               </button>
             </div>
             {errorNewChat && <p className="text-sm text-red-600">{errorNewChat}</p>}
 
             <input
               type="text"
-              placeholder="Search chats..."
+                  placeholder="البحث في المحادثات..."
               value={searchTerm}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg"
@@ -216,20 +346,27 @@ export default function ChatPage() {
                   value={message}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
                   onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleSendMessage()}
-                  placeholder="Type a message..."
+                  placeholder="اكتب رسالة..."
                   className="flex-1 px-4 py-2 border rounded-lg"
                 />
                 <button
                   onClick={handleSendMessage}
                   className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light"
                 >
-                  Send
+                  إرسال
                 </button>
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Select a conversation to start
+            <div className="flex items-center justify-center h-full text-gray-500 text-center px-4">
+              {!isAdmin ? (
+                <div>
+                  <p className="mb-2">اختر محادثة مع الأدمن للبدء</p>
+                  <p className="text-sm">يمكنك الشات مع الأدمن فقط</p>
+                </div>
+              ) : (
+                "اختر محادثة للبدء"
+              )}
             </div>
           )}
         </div>
