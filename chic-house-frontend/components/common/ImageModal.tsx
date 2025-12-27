@@ -1,16 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
+import { X, ZoomIn, ZoomOut, RotateCw, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageModalProps {
   imageUrl: string;
   alt: string;
   isOpen: boolean;
   onClose: () => void;
+  images?: string[];
+  currentIndex?: number;
+  onImageChange?: (index: number) => void;
 }
 
-export default function ImageModal({ imageUrl, alt, isOpen, onClose }: ImageModalProps) {
+export default function ImageModal({ 
+  imageUrl, 
+  alt, 
+  isOpen, 
+  onClose,
+  images = [],
+  currentIndex = 0,
+  onImageChange
+}: ImageModalProps) {
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -44,12 +55,16 @@ export default function ImageModal({ imageUrl, alt, isOpen, onClose }: ImageModa
         handleZoomOut();
       } else if (e.key === "r" || e.key === "R") {
         handleRotate();
+      } else if (e.key === "ArrowLeft") {
+        handlePrevious();
+      } else if (e.key === "ArrowRight") {
+        handleNext();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, scale]);
+  }, [isOpen, scale, images, currentIndex, onImageChange]);
 
   const handleZoomIn = () => {
     setScale((prev) => Math.min(prev + 0.25, 5));
@@ -67,6 +82,26 @@ export default function ImageModal({ imageUrl, alt, isOpen, onClose }: ImageModa
     setScale(1);
     setRotation(0);
     setPosition({ x: 0, y: 0 });
+  };
+
+  const handlePrevious = () => {
+    if (images.length > 1 && onImageChange) {
+      const newIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1;
+      onImageChange(newIndex);
+      setScale(1);
+      setRotation(0);
+      setPosition({ x: 0, y: 0 });
+    }
+  };
+
+  const handleNext = () => {
+    if (images.length > 1 && onImageChange) {
+      const newIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0;
+      onImageChange(newIndex);
+      setScale(1);
+      setRotation(0);
+      setPosition({ x: 0, y: 0 });
+    }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -156,6 +191,28 @@ export default function ImageModal({ imageUrl, alt, isOpen, onClose }: ImageModa
         </button>
       </div>
 
+      {/* Navigation Arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={handlePrevious}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-60 text-white hover:text-gray-300 transition-colors p-3 bg-black bg-opacity-50 rounded-full"
+            aria-label="الصورة السابقة"
+            title="الصورة السابقة (←)"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={handleNext}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-60 text-white hover:text-gray-300 transition-colors p-3 bg-black bg-opacity-50 rounded-full"
+            aria-label="الصورة التالية"
+            title="الصورة التالية (→)"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
+
       {/* Image */}
       <div
         className="relative max-w-[90vw] max-h-[90vh] overflow-hidden"
@@ -178,6 +235,13 @@ export default function ImageModal({ imageUrl, alt, isOpen, onClose }: ImageModa
           onClick={(e) => e.stopPropagation()}
         />
       </div>
+
+      {/* Image Counter */}
+      {images.length > 1 && (
+        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-4 py-2 rounded-full text-sm">
+          {currentIndex + 1} / {images.length}
+        </div>
+      )}
 
       {/* Zoom Info */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-4 py-2 rounded-full text-sm">

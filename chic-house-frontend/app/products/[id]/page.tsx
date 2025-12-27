@@ -21,6 +21,8 @@ export default function ProductDetailsPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [allImages, setAllImages] = useState<string[]>([]);
 
   useEffect(() => {
     fetchProduct();
@@ -30,8 +32,28 @@ export default function ProductDetailsPage() {
     try {
       const response = await productsApi.getById(productId);
       if (response.data?.data) {
-        setProduct(response.data.data);
-        setIsFavorite(response.data.data.isFavorite || false);
+        const productData = response.data.data;
+        setProduct(productData);
+        setIsFavorite(productData.isFavorite || false);
+        
+        // تجميع جميع الصور في مصفوفة واحدة
+        const images: string[] = [];
+        const firstImageUrl = fixImageUrl(
+          productData.firstImageUrl || 
+          (productData.images && productData.images.length > 0 && (productData.images[0]?.imageUrl || productData.images[0]?.ImageUrl))
+        );
+        if (firstImageUrl) {
+          images.push(firstImageUrl);
+        }
+        if (productData.images && Array.isArray(productData.images)) {
+          productData.images.forEach((img: any) => {
+            const imgUrl = fixImageUrl(img.imageUrl || img.ImageUrl);
+            if (imgUrl && !images.includes(imgUrl)) {
+              images.push(imgUrl);
+            }
+          });
+        }
+        setAllImages(images);
       }
     } catch (error) {
       console.error("Error fetching product:", error);
@@ -90,6 +112,8 @@ export default function ProductDetailsPage() {
               <div 
                 className="relative w-full h-64 sm:h-80 md:h-96 bg-secondary-light rounded-lg overflow-hidden border border-secondary-dark flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
                 onClick={() => {
+                  const index = allImages.findIndex(img => img === firstImageUrl);
+                  setCurrentImageIndex(index >= 0 ? index : 0);
                   setSelectedImage(firstImageUrl);
                   setIsModalOpen(true);
                 }}
@@ -130,6 +154,8 @@ export default function ProductDetailsPage() {
                     key={img.id} 
                     className="relative h-16 sm:h-20 bg-secondary rounded overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => {
+                      const index = allImages.findIndex(img => img === imgUrl);
+                      setCurrentImageIndex(index >= 0 ? index : 0);
                       setSelectedImage(imgUrl);
                       setIsModalOpen(true);
                     }}
@@ -232,9 +258,16 @@ export default function ProductDetailsPage() {
           imageUrl={selectedImage}
           alt={product.name_Ar}
           isOpen={isModalOpen}
+          images={allImages}
+          currentIndex={currentImageIndex}
           onClose={() => {
             setIsModalOpen(false);
             setSelectedImage(null);
+            setCurrentImageIndex(0);
+          }}
+          onImageChange={(index) => {
+            setCurrentImageIndex(index);
+            setSelectedImage(allImages[index]);
           }}
         />
       )}
