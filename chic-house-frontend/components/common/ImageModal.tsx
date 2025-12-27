@@ -84,7 +84,7 @@ export default function ImageModal({
     setPosition({ x: 0, y: 0 });
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = React.useCallback(() => {
     if (images.length > 1 && onImageChange) {
       const newIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1;
       onImageChange(newIndex);
@@ -92,9 +92,9 @@ export default function ImageModal({
       setRotation(0);
       setPosition({ x: 0, y: 0 });
     }
-  };
+  }, [images, currentIndex, onImageChange]);
 
-  const handleNext = () => {
+  const handleNext = React.useCallback(() => {
     if (images.length > 1 && onImageChange) {
       const newIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0;
       onImageChange(newIndex);
@@ -102,7 +102,7 @@ export default function ImageModal({
       setRotation(0);
       setPosition({ x: 0, y: 0 });
     }
-  };
+  }, [images, currentIndex, onImageChange]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (scale > 1) {
