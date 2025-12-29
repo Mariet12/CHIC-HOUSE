@@ -4,7 +4,7 @@ import axios from "axios";
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:5008/api" ||
-  "https://elctroapp.runasp.net/api";
+  "https://chic-house.runasp.net/api";
 
 // دالة مساعدة لتصحيح URL الصور
 export function fixImageUrl(imageUrl: string | null | undefined): string | null {
@@ -16,7 +16,7 @@ export function fixImageUrl(imageUrl: string | null | undefined): string | null 
   }
   
   // لو الـ URL مش كامل، نستخدم الـ BaseURL من الـ environment
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5008/api";
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5008/api" || "https://chic-house.runasp.net/api";
   
   // استخراج الـ base URL بدون /api
   let baseUrl = apiBaseUrl.replace('/api', '');
