@@ -62,7 +62,7 @@ namespace Electro.Service
                 return new ApiResponse(400, "User with this email already exists");
 
             // Handle image upload if provided
-            string imageUrl = null;
+            string? imageUrl = null;
             if (dto.Image != null)
             {
                 imageUrl = await _fileService.SaveFileAsync(dto.Image, "users");
@@ -165,7 +165,7 @@ namespace Electro.Service
             try
             {
                 await SendEmailAsync(email, "Password Reset Code",
-                    CreatePasswordResetEmailBody(user.UserName, otp));
+                    CreatePasswordResetEmailBody(user.UserName ?? "", otp));
 
                 return new ApiResponse(200, "Password reset code sent to your email");
             }
@@ -176,18 +176,18 @@ namespace Electro.Service
             }
         }
 
-        public async Task<ApiResponse> VerifyOtpAsync(VerifyOtp dto)
+        public Task<ApiResponse> VerifyOtpAsync(VerifyOtp dto)
         {
             var isValid = _otpService.IsValidOtp(dto.Email, dto.Otp);
             if (!isValid)
             {
-                return new ApiResponse(400, "Invalid or expired OTP");
+                return Task.FromResult(new ApiResponse(400, "Invalid or expired OTP"));
             }
 
             // Mark OTP as verified for password reset
             _cache.Set($"otp_verified_{dto.Email}", true, TimeSpan.FromMinutes(10));
 
-            return new ApiResponse(200, "OTP verified successfully");
+            return Task.FromResult(new ApiResponse(200, "OTP verified successfully"));
         }
 
         public async Task<ApiResponse> VerifyEmailOtpAsync(VerifyEmailDto dto)
@@ -196,7 +196,7 @@ namespace Electro.Service
             if (user == null)
                 return new ApiResponse(404, "User not found");
 
-            if (!_cache.TryGetValue(dto.Email, out string savedOtp))
+            if (!_cache.TryGetValue(dto.Email, out string? savedOtp) || savedOtp == null)
                 return new ApiResponse(400, "OTP has expired");
 
             if (dto.OtpCode != savedOtp)
@@ -415,11 +415,11 @@ namespace Electro.Service
                 var roles = await _userManager.GetRolesAsync(user);
                 userDtos.Add(new UserDto
                 {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                    Image = user.Image,
+                    Id = user.Id ?? "",
+                    UserName = user.UserName ?? "",
+                    Email = user.Email ?? "",
+                    PhoneNumber = user.PhoneNumber ?? "",
+                    Image = user.Image ?? "",
                     EmailConfirmed = user.EmailConfirmed,
                     Role = roles.FirstOrDefault() ?? "Customer",
                     Status = user.Status,
@@ -430,7 +430,7 @@ namespace Electro.Service
             return userDtos;
         }
         // Private helper methods
-        private string GetCurrentUserId()
+        private string? GetCurrentUserId()
         {
             return _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
@@ -448,7 +448,7 @@ namespace Electro.Service
             try
             {
                 await SendEmailAsync(email, "Email Verification",
-                    CreateVerificationEmailBody(user.UserName, otp));
+                    CreateVerificationEmailBody(user.UserName ?? "", otp));
 
                 return new ApiResponse(200, "OTP sent successfully");
             }
@@ -596,12 +596,12 @@ namespace Electro.Service
                 var roles = await _userManager.GetRolesAsync(user);
                 userDtos.Add(new UserDto
                 {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
+                    Id = user.Id ?? "",
+                    UserName = user.UserName ?? "",
+                    Email = user.Email ?? "",
+                    PhoneNumber = user.PhoneNumber ?? "",
                    
-                    Image = user.Image,
+                    Image = user.Image ?? "",
                     EmailConfirmed = user.EmailConfirmed,
                     Role = roles.FirstOrDefault() ?? "User",
                     Status = user.Status,
@@ -657,9 +657,10 @@ namespace Electro.Service
 
             if (!string.IsNullOrWhiteSpace(filter.Search))
             {
+                var search = filter.Search;
                 query = query.Where(u =>
-                    u.UserName.Contains(filter.Search) ||
-                    u.Email.Contains(filter.Search));
+                    (u.UserName != null && u.UserName.Contains(search)) ||
+                    (u.Email != null && u.Email.Contains(search)));
             }
 
             var totalCount = await query.CountAsync();
@@ -670,13 +671,13 @@ namespace Electro.Service
                 .Take(filter.PageSize)
                 .Select(u => new UserDto
                 {
-                    Id = u.Id,
-                    UserName = u.UserName,
-                    Email = u.Email,
-                    PhoneNumber = u.PhoneNumber,
-                    Image = u.Image,
+                    Id = u.Id ?? "",
+                    UserName = u.UserName ?? "",
+                    Email = u.Email ?? "",
+                    PhoneNumber = u.PhoneNumber ?? "",
+                    Image = u.Image ?? "",
                     Status = u.Status,
-                    Role = u.Role,
+                    Role = u.Role ?? "",
                     EmailConfirmed = u.EmailConfirmed,
                     
                     
