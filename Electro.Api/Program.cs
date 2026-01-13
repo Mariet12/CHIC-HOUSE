@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using Electro.Apis.Extentions;
 using Electro.Core.Errors;
 using Electro.Core.Interface;
@@ -6,6 +6,8 @@ using Electro.Service;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Electro.Core.Models.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 try
@@ -89,5 +91,45 @@ app.MapHub<ChatHub>("/ChatHub"); // لاحظ السلاش
 
 // ===== REST Controllers =====
 app.MapControllers();
+
+// ===== Seed Admin User =====
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var accountService = services.GetRequiredService<IAccountService>();
+        var adminEmail = "admin@chichouse.com";
+        var adminPassword = "Admin@123456";
+        var adminUserName = "Admin User";
+
+        // Check if admin already exists
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+        
+        if (existingAdmin == null)
+        {
+            var result = await accountService.CreateAdminAsync(adminEmail, adminPassword, adminUserName);
+            if (result.StatusCode == 200)
+            {
+                Console.WriteLine("✅ Admin account created successfully!");
+                Console.WriteLine($"   Email: {adminEmail}");
+                Console.WriteLine($"   Password: {adminPassword}");
+            }
+            else
+            {
+                Console.WriteLine($"⚠️ Failed to create admin: {result.Message}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("ℹ️ Admin account already exists.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Error seeding admin: {ex.Message}");
+    }
+}
 
 app.Run();

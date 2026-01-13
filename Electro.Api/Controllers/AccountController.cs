@@ -258,6 +258,24 @@ namespace Electro.Apis.Controllers
             return StatusCode(result.StatusCode, CreateResponse(result));
         }
 
+        [HttpPost("create-admin")]
+        public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(CreateValidationErrorResponse());
+
+            try
+            {
+                var result = await _accountService.CreateAdminAsync(dto.Email, dto.Password, dto.UserName);
+                return StatusCode(result.StatusCode, CreateResponse(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating admin for email: {Email}", dto.Email);
+                return StatusCode(500, CreateErrorResponse("Admin creation failed"));
+            }
+        }
+
        
         // Helper methods
         private object CreateResponse(ApiResponse result)
@@ -309,5 +327,20 @@ namespace Electro.Apis.Controllers
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+    }
+
+    // DTO for creating admin
+    public class CreateAdminDto
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [MinLength(6)]
+        public string Password { get; set; }
+
+        [Required]
+        public string UserName { get; set; }
     }
 }

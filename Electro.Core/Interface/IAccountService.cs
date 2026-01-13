@@ -1,4 +1,4 @@
-﻿using Electro.Core.Dtos;
+using Electro.Core.Dtos;
 using Electro.Core.Dtos.Account;
 using Electro.Core.Errors;
 using Electro.Core.Models.Identity;
@@ -30,6 +30,7 @@ namespace Electro.Core.Interface
         Task<ApiResponse> SoftDeleteUserAsync(string userId);
         Task<ApiResponse> SoftDeleteProfileAsync(string userId);
         Task<PaginatedResult<UserDto>> GetCustomerAsync(FilterDto filter);
+        Task<ApiResponse> CreateAdminAsync(string email, string password, string userName);
 
     }
 }

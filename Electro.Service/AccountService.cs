@@ -786,6 +786,57 @@ namespace Electro.Service
             return new ApiResponse(400, $"Soft delete failed: {errors}");
         }
 
+        public async Task<ApiResponse> CreateAdminAsync(string email, string password, string userName)
+        {
+            // Check if user already exists
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+            {
+                return new ApiResponse(400, "User with this email already exists");
+            }
+
+            // Check if Admin role exists, if not create it
+            var adminRoleExists = await _context.Roles.AnyAsync(r => r.Name == "Admin");
+            if (!adminRoleExists)
+            {
+                await _context.Roles.AddAsync(new Microsoft.AspNetCore.Identity.IdentityRole { Name = "Admin", NormalizedName = "ADMIN" });
+                await _context.SaveChangesAsync();
+            }
+
+            // Create admin user
+            var adminUser = new AppUser
+            {
+                FullName = userName,
+                UserName = email,
+                Email = email,
+                EmailConfirmed = true,
+                Role = "Admin",
+                Status = UserStatus.Active,
+            };
+
+            var result = await _userManager.CreateAsync(adminUser, password);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(" | ", result.Errors.Select(e => e.Description));
+                return new ApiResponse(400, $"Admin creation failed: {errors}");
+            }
+
+            // Assign Admin role
+            await _userManager.AddToRoleAsync(adminUser, "Admin");
+
+            return new ApiResponse(200, "Admin created successfully")
+            {
+                Data = new 
+                { 
+                    Id = adminUser.Id, 
+                    Email = adminUser.Email, 
+                    UserName = adminUser.UserName, 
+                    Role = adminUser.Role,
+                    Status = adminUser.Status 
+                }
+            };
+        }
+  
     }
 }
 
