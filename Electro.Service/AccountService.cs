@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using System.Security.Claims;
+using System.Text.Json;
+using System.IO;
 
 namespace Electro.Service
 {
@@ -98,31 +100,88 @@ namespace Electro.Service
         }
         public async Task<ApiResponse> LoginAsync(Login dto)
         {
+            // #region agent log
+            try { var log1 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_1", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:100", message = "LoginAsync entry", data = new { email = dto?.Email ?? "null", passwordLength = dto?.Password?.Length ?? 0, hasFcmToken = !string.IsNullOrEmpty(dto?.FcmToken) }, sessionId = "debug-session", runId = "run1", hypothesisId = "E" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log1) + "\n"); } catch { }
+            // #endregion
+
+            if (dto == null || string.IsNullOrEmpty(dto.Email))
+            {
+                return new ApiResponse(400, "Email is required");
+            }
+
             var user = await _userManager.FindByEmailAsync(dto.Email);
+            
+            // #region agent log
+            try { var log2 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_2", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:105", message = "After FindByEmailAsync", data = new { userFound = user != null, userId = user?.Id, userEmail = user?.Email, emailConfirmed = user?.EmailConfirmed, userStatus = user?.Status.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log2) + "\n"); } catch { }
+            // #endregion
+
             if (user == null)
             {
+                // #region agent log
+                try { var log3 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_3", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:108", message = "User not found - returning 401", data = new { searchedEmail = dto.Email }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log3) + "\n"); } catch { }
+                // #endregion
                 return new ApiResponse(401, "This email is not registered.");
             }
 
-            if (!await _userManager.CheckPasswordAsync(user, dto.Password))
+            var passwordCheck = await _userManager.CheckPasswordAsync(user, dto.Password);
+            
+            // #region agent log
+            try { var log4 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_4", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:115", message = "After CheckPasswordAsync", data = new { passwordValid = passwordCheck, userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "B" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log4) + "\n"); } catch { }
+            // #endregion
+
+            if (!passwordCheck)
             {
+                // #region agent log
+                try { var log5 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_5", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:118", message = "Password incorrect - returning 401", data = new { userId = user.Id, email = user.Email }, sessionId = "debug-session", runId = "run1", hypothesisId = "B" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log5) + "\n"); } catch { }
+                // #endregion
                 return new ApiResponse(401, "Incorrect password. Please try again.");
             }
 
+            // #region agent log
+            try { var log6 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_6", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:123", message = "Checking EmailConfirmed", data = new { emailConfirmed = user.EmailConfirmed, userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log6) + "\n"); } catch { }
+            // #endregion
+
             if (!user.EmailConfirmed)
             {
+                // #region agent log
+                try { var log7 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_7", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:126", message = "Email not confirmed - returning 403", data = new { userId = user.Id, email = user.Email }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log7) + "\n"); } catch { }
+                // #endregion
                 return new ApiResponse(403, "Email not verified. Please check your inbox.");
             }
 
             // Check user status
+            // #region agent log
+            try { var log8 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_8", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:133", message = "Checking user status", data = new { status = user.Status.ToString(), userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log8) + "\n"); } catch { }
+            // #endregion
+
             switch (user.Status)
             {
-                case UserStatus.Banned: return new ApiResponse(403, "Your account has been banned.");
-                case UserStatus.Rejected: return new ApiResponse(403, "Your account has been rejected.");
-                case UserStatus.Inactive: return new ApiResponse(403, "Your account is inactive. Please contact support.");
-                case UserStatus.Deleted: return new ApiResponse(403, "Your account has been deleted.");
+                case UserStatus.Banned: 
+                    // #region agent log
+                    try { var log9 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_9", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:137", message = "User banned - returning 403", data = new { userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log9) + "\n"); } catch { }
+                    // #endregion
+                    return new ApiResponse(403, "Your account has been banned.");
+                case UserStatus.Rejected: 
+                    // #region agent log
+                    try { var log10 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_10", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:140", message = "User rejected - returning 403", data = new { userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log10) + "\n"); } catch { }
+                    // #endregion
+                    return new ApiResponse(403, "Your account has been rejected.");
+                case UserStatus.Inactive: 
+                    // #region agent log
+                    try { var log11 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_11", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:143", message = "User inactive - returning 403", data = new { userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log11) + "\n"); } catch { }
+                    // #endregion
+                    return new ApiResponse(403, "Your account is inactive. Please contact support.");
+                case UserStatus.Deleted: 
+                    // #region agent log
+                    try { var log12 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_12", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:146", message = "User deleted - returning 403", data = new { userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log12) + "\n"); } catch { }
+                    // #endregion
+                    return new ApiResponse(403, "Your account has been deleted.");
                 case UserStatus.Active: break;
-                default: return new ApiResponse(403, "Your account status is not valid for login.");
+                default: 
+                    // #region agent log
+                    try { var log13 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_13", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:150", message = "Invalid status - returning 403", data = new { status = user.Status.ToString(), userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log13) + "\n"); } catch { }
+                    // #endregion
+                    return new ApiResponse(403, "Your account status is not valid for login.");
             }
 
             // ✨ لو جالك FcmToken في DTO، خزّنه في الجدول
@@ -132,6 +191,11 @@ namespace Electro.Service
             }
 
             var token = await _tokenService.CreateTokenAsync(user);
+            
+            // #region agent log
+            try { var log14 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_14", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:162", message = "Login successful", data = new { userId = user.Id, email = user.Email, tokenGenerated = !string.IsNullOrEmpty(token) }, sessionId = "debug-session", runId = "run1", hypothesisId = "SUCCESS" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log14) + "\n"); } catch { }
+            // #endregion
+
             return new ApiResponse(200, "Login successful")
             {
                 Data = new

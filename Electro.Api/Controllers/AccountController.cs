@@ -1,10 +1,13 @@
-﻿using Electro.Core.Dtos.Account;
+using Electro.Core.Dtos.Account;
 using Electro.Core.Errors;
 using Electro.Core.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using System.Text.Json;
+using System.IO;
+using System;
 
 namespace Electro.Apis.Controllers
 {
@@ -58,16 +61,33 @@ namespace Electro.Apis.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login dto)
         {
+            // #region agent log
+            try { var logCtrl1 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl1", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:60", message = "Login endpoint entry", data = new { dtoEmail = dto?.Email ?? "null", dtoPasswordLength = dto?.Password?.Length ?? 0, modelStateValid = ModelState.IsValid, modelStateErrors = ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage).ToList() }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl1) + "\n"); } catch { }
+            // #endregion
+
             if (!ModelState.IsValid)
+            {
+                // #region agent log
+                try { var logCtrl2 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl2", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:65", message = "ModelState invalid - returning 400", data = new { errors = ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage).ToList() }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl2) + "\n"); } catch { }
+                // #endregion
                 return BadRequest(CreateValidationErrorResponse());
+            }
 
             try
             {
                 var result = await _accountService.LoginAsync(dto);
+                
+                // #region agent log
+                try { var logCtrl3 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl3", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:75", message = "LoginAsync result", data = new { statusCode = result.StatusCode, message = result.Message }, sessionId = "debug-session", runId = "run1", hypothesisId = "RESULT" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl3) + "\n"); } catch { }
+                // #endregion
+
                 return StatusCode(result.StatusCode, CreateResponse(result));
             }
             catch (Exception ex)
             {
+                // #region agent log
+                try { var logCtrl4 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl4", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:82", message = "Exception in Login", data = new { exceptionMessage = ex.Message, exceptionType = ex.GetType().Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "EXCEPTION" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl4) + "\n"); } catch { }
+                // #endregion
                 _logger.LogError(ex, "Error during login for email: {Email}", dto.Email);
                 return StatusCode(500, CreateErrorResponse("Login failed"));
             }
