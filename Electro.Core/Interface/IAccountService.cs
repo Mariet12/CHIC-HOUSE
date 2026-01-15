@@ -31,6 +31,7 @@ namespace Electro.Core.Interface
         Task<ApiResponse> SoftDeleteProfileAsync(string userId);
         Task<PaginatedResult<UserDto>> GetCustomerAsync(FilterDto filter);
         Task<ApiResponse> CreateAdminAsync(string email, string password, string userName);
+        Task<ApiResponse> ActivateAllUsersAsync();
 
     }
 }

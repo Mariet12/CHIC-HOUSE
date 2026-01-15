@@ -276,6 +276,21 @@ namespace Electro.Apis.Controllers
             }
         }
 
+        [HttpPost("activate-all-users")]
+        public async Task<IActionResult> ActivateAllUsers()
+        {
+            try
+            {
+                var result = await _accountService.ActivateAllUsersAsync();
+                return StatusCode(result.StatusCode, CreateResponse(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error activating users");
+                return StatusCode(500, CreateErrorResponse("Failed to activate users"));
+            }
+        }
+
        
         // Helper methods
         private object CreateResponse(ApiResponse result)

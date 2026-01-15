@@ -836,6 +836,51 @@ namespace Electro.Service
                 }
             };
         }
+
+        public async Task<ApiResponse> ActivateAllUsersAsync()
+        {
+            try
+            {
+                var users = await _userManager.Users.ToListAsync();
+                int activatedCount = 0;
+
+                foreach (var user in users)
+                {
+                    bool updated = false;
+                    
+                    if (!user.EmailConfirmed)
+                    {
+                        user.EmailConfirmed = true;
+                        updated = true;
+                    }
+                    
+                    if (user.Status != UserStatus.Active && user.Status != UserStatus.Deleted)
+                    {
+                        user.Status = UserStatus.Active;
+                        updated = true;
+                    }
+
+                    if (updated)
+                    {
+                        var result = await _userManager.UpdateAsync(user);
+                        if (result.Succeeded)
+                        {
+                            activatedCount++;
+                        }
+                    }
+                }
+
+                return new ApiResponse(200, $"Activated {activatedCount} users successfully")
+                {
+                    Data = new { activatedCount, totalUsers = users.Count }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error activating users");
+                return new ApiResponse(500, $"Error activating users: {ex.Message}");
+            }
+        }
   
     }
 }

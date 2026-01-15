@@ -1,4 +1,4 @@
-﻿
+
 using Electro.Core.Models.Identity;
 using Electro.Core.Services;
 using Microsoft.AspNetCore.Identity;
@@ -44,7 +44,7 @@ namespace Electro.Services
         };
             // 2. Register Claims
 
-            var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:key"]));
+            var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"] ?? configuration["JWT:key"] ?? throw new Exception("JWT Key not found")));
             var token = new JwtSecurityToken(
                             issuer: configuration["JWT:ValidIssuer"],
                             audience: configuration["JWT:ValidAudience"],
