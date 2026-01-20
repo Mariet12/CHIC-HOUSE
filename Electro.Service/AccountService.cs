@@ -1,4 +1,4 @@
-﻿
+
 using Electro.Core.Dtos;
 using Electro.Core.Dtos.Account;
 using Electro.Core.Errors;
@@ -58,19 +58,34 @@ namespace Electro.Service
 
         public async Task<ApiResponse> RegisterAsync(Register dto)
         {
-            // Check if user already exists
+            // تأكيد قيمة الدور الافتراضية لو مش جاية من الـ Frontend
+            var roleName = string.IsNullOrWhiteSpace(dto.Role) ? "Customer" : dto.Role;
+
+            // التأكد من عدم تكرار الإيميل
             var existingUser = await _userManager.FindByEmailAsync(dto.Email);
             if (existingUser != null)
                 return new ApiResponse(400, "User with this email already exists");
 
-            // Handle image upload if provided
+            // التأكد من وجود الـ Role في جدول الـ IdentityRoles، ولو مش موجود نضيفه
+            var roleExists = await _context.Roles.AnyAsync(r => r.Name == roleName);
+            if (!roleExists)
+            {
+                await _context.Roles.AddAsync(new Microsoft.AspNetCore.Identity.IdentityRole
+                {
+                    Name = roleName,
+                    NormalizedName = roleName.ToUpper()
+                });
+                await _context.SaveChangesAsync();
+            }
+
+            // رفع الصورة إن وُجدت
             string? imageUrl = null;
             if (dto.Image != null)
             {
                 imageUrl = await _fileService.SaveFileAsync(dto.Image, "users");
             }
 
-            // Create user
+            // إنشاء المستخدم
             var user = new AppUser
             {
                 FullName = dto.UserName,
@@ -78,7 +93,7 @@ namespace Electro.Service
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
                 EmailConfirmed = true,
-                Role = dto.Role,
+                Role = roleName,
                 Image = imageUrl,
                 Status = UserStatus.Active,
             };
@@ -90,8 +105,13 @@ namespace Electro.Service
                 return new ApiResponse(400, $"Registration failed: {errors}");
             }
 
-            // Assign role
-            await _userManager.AddToRoleAsync(user, dto.Role);
+            // إسناد الـ Role في نظام الـ Identity
+            var roleAssignResult = await _userManager.AddToRoleAsync(user, roleName);
+            if (!roleAssignResult.Succeeded)
+            {
+                var errors = string.Join(" | ", roleAssignResult.Errors.Select(e => e.Description));
+                return new ApiResponse(400, $"Registration failed while assigning role: {errors}");
+            }
 
             return new ApiResponse(200, "Registration successful")
             {

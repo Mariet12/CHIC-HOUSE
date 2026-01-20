@@ -11,7 +11,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
     phoneNumber: "",
-    role: "User",
+    role: "Customer",
   });
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
