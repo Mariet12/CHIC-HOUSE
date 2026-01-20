@@ -291,6 +291,24 @@ namespace Electro.Apis.Controllers
             }
         }
 
+        [HttpPost("activate-user")]
+        public async Task<IActionResult> ActivateUser([FromBody] ActivateUserDto dto)
+        {
+            if (string.IsNullOrEmpty(dto.Email))
+                return BadRequest(CreateErrorResponse("Email is required"));
+
+            try
+            {
+                var result = await _accountService.ActivateUserByEmailAsync(dto.Email);
+                return StatusCode(result.StatusCode, CreateResponse(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error activating user: {Email}", dto.Email);
+                return StatusCode(500, CreateErrorResponse("Failed to activate user"));
+            }
+        }
+
        
         // Helper methods
         private object CreateResponse(ApiResponse result)
@@ -357,5 +375,13 @@ namespace Electro.Apis.Controllers
 
         [Required]
         public string UserName { get; set; }
+    }
+
+    // DTO for activating user
+    public class ActivateUserDto
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
     }
 }

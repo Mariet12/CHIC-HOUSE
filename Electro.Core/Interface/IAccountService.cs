@@ -32,6 +32,7 @@ namespace Electro.Core.Interface
         Task<PaginatedResult<UserDto>> GetCustomerAsync(FilterDto filter);
         Task<ApiResponse> CreateAdminAsync(string email, string password, string userName);
         Task<ApiResponse> ActivateAllUsersAsync();
+        Task<ApiResponse> ActivateUserByEmailAsync(string email);
 
     }
 }

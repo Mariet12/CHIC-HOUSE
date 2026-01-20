@@ -901,6 +901,61 @@ namespace Electro.Service
                 return new ApiResponse(500, $"Error activating users: {ex.Message}");
             }
         }
+
+        public async Task<ApiResponse> ActivateUserByEmailAsync(string email)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return new ApiResponse(404, $"User with email {email} not found");
+                }
+
+                bool updated = false;
+                
+                if (!user.EmailConfirmed)
+                {
+                    user.EmailConfirmed = true;
+                    updated = true;
+                }
+                
+                if (user.Status != UserStatus.Active && user.Status != UserStatus.Deleted)
+                {
+                    user.Status = UserStatus.Active;
+                    updated = true;
+                }
+
+                if (updated)
+                {
+                    var result = await _userManager.UpdateAsync(user);
+                    if (result.Succeeded)
+                    {
+                        return new ApiResponse(200, $"User {email} activated successfully")
+                        {
+                            Data = new { user.Id, user.Email, user.UserName, user.Status, user.EmailConfirmed }
+                        };
+                    }
+                    else
+                    {
+                        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                        return new ApiResponse(400, $"Failed to activate user: {errors}");
+                    }
+                }
+                else
+                {
+                    return new ApiResponse(200, $"User {email} is already active")
+                    {
+                        Data = new { user.Id, user.Email, user.UserName, user.Status, user.EmailConfirmed }
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error activating user by email: {Email}", email);
+                return new ApiResponse(500, $"Error activating user: {ex.Message}");
+            }
+        }
   
     }
 }
