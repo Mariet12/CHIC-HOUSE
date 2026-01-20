@@ -1,4 +1,4 @@
-﻿using eBook.Core.Interface;
+using eBook.Core.Interface;
 using eBook.Services;
 using Electro.Core.Interface;
 using Electro.Core.Models.Identity;
@@ -96,7 +96,18 @@ namespace Electro.Apis.Extentions
             {
                 var origins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
                 options.AddPolicy("FrontCors", builder =>
-                    builder.WithOrigins(origins)
+                    builder.SetIsOriginAllowed(origin =>
+                    {
+                        // السماح بالـ origins المحددة في appsettings.json
+                        if (origins.Contains(origin))
+                            return true;
+                        
+                        // السماح بكل الـ Vercel preview deployments (*.vercel.app)
+                        if (origin.EndsWith(".vercel.app"))
+                            return true;
+                        
+                        return false;
+                    })
                            .AllowAnyHeader()
                            .AllowAnyMethod()
                            .AllowCredentials());
