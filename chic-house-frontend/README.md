@@ -34,10 +34,18 @@ npm install
 ```
 
 2. إعداد متغيرات البيئة:
-أنشئ ملف `.env.local` وأضف:
+أنشئ ملف `.env.local` في مجلد `chic-house-frontend` وأضف:
 ```
-NEXT_PUBLIC_API_URL=https://kerolosadel12-002-site1.qtempurl.com/api
+# للتطوير المحلي
+NEXT_PUBLIC_API_URL=http://localhost:5008/api
+
+# للإنتاج على Vercel، أضف متغير البيئة في إعدادات Vercel:
+# NEXT_PUBLIC_API_URL=https://chic-house.runasp.net/api
 ```
+
+**ملاحظة:** إذا لم تقم بإنشاء ملف `.env.local`، سيستخدم التطبيق:
+- `http://localhost:5008/api` في وضع التطوير
+- `https://chic-house.runasp.net/api` في وضع الإنتاج
 
 3. تشغيل المشروع:
 ```bash
