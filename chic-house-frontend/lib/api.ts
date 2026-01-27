@@ -31,9 +31,6 @@ export function fixImageUrl(imageUrl: string | null | undefined): string | null 
 
 const apiClient = axios.create({
   baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
   withCredentials: true, // Important for CORS with credentials
 });
 
@@ -44,6 +41,17 @@ apiClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
+  // إضافة Content-Type فقط إذا لم يكن FormData
+  // FormData يجب أن يضبط Content-Type تلقائياً مع boundary
+  if (!(config.data instanceof FormData)) {
+    if (!config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+  } else {
+    // إزالة Content-Type للسماح لـ axios بإضافته تلقائياً مع boundary
+    delete config.headers['Content-Type'];
+  }
+  
   // Log request for debugging (only in development)
   if (process.env.NODE_ENV === 'development') {
     console.log("API Request:", {
@@ -51,6 +59,7 @@ apiClient.interceptors.request.use((config) => {
       url: config.url,
       baseURL: config.baseURL,
       hasToken: !!token,
+      isFormData: config.data instanceof FormData,
     });
   }
   
@@ -96,13 +105,9 @@ export const productsApi = {
   },
   // Admin
   create: (formData: FormData) =>
-    apiClient.post("/Products", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.post("/Products", formData),
   update: (id: number, formData: FormData) =>
-    apiClient.put(`/Products/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.put(`/Products/${id}`, formData),
   delete: (id: number) => apiClient.delete(`/Products/${id}`),
 };
 
@@ -112,13 +117,9 @@ export const categoriesApi = {
     apiClient.get("/Category", { params: { search, page, pageSize } }),
   getById: (id: number) => apiClient.get(`/Category/${id}`),
   create: (formData: FormData) =>
-    apiClient.post("/Category", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.post("/Category", formData),
   update: (id: number, formData: FormData) =>
-    apiClient.put(`/Category/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.put(`/Category/${id}`, formData),
   delete: (id: number) => apiClient.delete(`/Category/${id}`),
 };
 
@@ -139,14 +140,10 @@ export const accountApi = {
   login: (data: { email: string; password: string }) =>
     apiClient.post("/Account/login", data),
   register: (formData: FormData) =>
-    apiClient.post("/Account/register", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.post("/Account/register", formData),
   getUserInfo: () => apiClient.get("/Account/user-info"),
   updateUser: (formData: FormData) =>
-    apiClient.put("/Account/update-user", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.put("/Account/update-user", formData),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     apiClient.put("/Account/change-password", data),
   forgotPassword: (data: { email: string }) =>
@@ -222,13 +219,9 @@ export const bannersApi = {
   getAll: () => apiClient.get("/admin/banners/all"),
   getById: (id: number) => apiClient.get(`/admin/banners/${id}`),
   create: (formData: FormData) =>
-    apiClient.post("/admin/banners", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.post("/admin/banners", formData),
   update: (id: number, formData: FormData) =>
-    apiClient.put(`/admin/banners/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.put(`/admin/banners/${id}`, formData),
   toggle: (id: number) => apiClient.patch(`/admin/banners/${id}/toggle`),
   delete: (id: number) => apiClient.delete(`/admin/banners/${id}`),
 };
@@ -238,13 +231,9 @@ export const portfolioApi = {
   getAll: () => apiClient.get("/Portfolio"),
   getById: (id: number) => apiClient.get(`/Portfolio/${id}`),
   create: (formData: FormData) =>
-    apiClient.post("/Portfolio", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.post("/Portfolio", formData),
   update: (id: number, formData: FormData) =>
-    apiClient.put(`/Portfolio/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    apiClient.put(`/Portfolio/${id}`, formData),
   delete: (id: number) => apiClient.delete(`/Portfolio/${id}`),
 };
 
