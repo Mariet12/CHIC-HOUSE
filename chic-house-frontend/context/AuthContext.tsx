@@ -132,21 +132,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let errorMessage = "فشل إنشاء الحساب";
       
       if (errorData) {
-        // عرض رسالة الخطأ من الـ API
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        }
-        
-        // عرض أخطاء الـ validation إن وجدت
-        if (errorData.errors && Array.isArray(errorData.errors)) {
-          const validationErrors = errorData.errors.join(", ");
+        // عرض أخطاء الـ validation أولاً (أهم)
+        if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+          const validationErrors = errorData.errors
+            .map((err: string) => {
+              // ترجمة أخطاء شائعة
+              const lower = err.toLowerCase();
+              if (lower.includes("required") || lower.includes("مطلوب")) {
+                if (lower.includes("email")) return "البريد الإلكتروني مطلوب";
+                if (lower.includes("password")) return "كلمة المرور مطلوبة";
+                if (lower.includes("username")) return "اسم المستخدم مطلوب";
+                if (lower.includes("role")) return "الدور مطلوب";
+                return "جميع الحقول المطلوبة يجب ملؤها";
+              }
+              if (lower.includes("email")) return "البريد الإلكتروني غير صحيح";
+              if (lower.includes("password") && lower.includes("length")) return "كلمة المرور يجب أن تكون 6 أحرف على الأقل";
+              return err;
+            })
+            .join(", ");
           errorMessage = `خطأ في البيانات: ${validationErrors}`;
-        }
-        
-        // عرض رسالة خاصة إذا كان الإيميل موجود
-        const lower = errorMessage.toLowerCase();
-        if (lower.includes("exist") || lower.includes("already")) {
-          errorMessage = "البريد الإلكتروني مستخدم بالفعل. يرجى تسجيل الدخول أو استخدام بريد آخر";
+        } 
+        // عرض رسالة الخطأ من الـ API
+        else if (errorData.message) {
+          const lower = errorData.message.toLowerCase();
+          if (lower.includes("exist") || lower.includes("already")) {
+            errorMessage = "البريد الإلكتروني مستخدم بالفعل. يرجى تسجيل الدخول أو استخدام بريد آخر";
+          } else {
+            errorMessage = errorData.message;
+          }
         }
       }
       
