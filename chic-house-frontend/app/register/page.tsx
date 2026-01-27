@@ -23,11 +23,14 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("userName", formData.userName);
-      formDataToSend.append("email", formData.email);
+      formDataToSend.append("userName", formData.userName.trim());
+      formDataToSend.append("email", formData.email.trim());
       formDataToSend.append("password", formData.password);
-      formDataToSend.append("phoneNumber", formData.phoneNumber);
-      formDataToSend.append("role", formData.role);
+      // إضافة phoneNumber فقط إذا كان له قيمة
+      if (formData.phoneNumber && formData.phoneNumber.trim()) {
+        formDataToSend.append("phoneNumber", formData.phoneNumber.trim());
+      }
+      formDataToSend.append("role", formData.role || "Customer");
       if (image) {
         formDataToSend.append("image", image);
       }

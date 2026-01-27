@@ -44,7 +44,12 @@ namespace Electro.Apis.Controllers
         public async Task<IActionResult> Register([FromForm] Register model)
         {
             if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Registration validation failed for email: {Email}. Errors: {Errors}", 
+                    model?.Email ?? "unknown", 
+                    string.Join(", ", ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage)));
                 return BadRequest(CreateValidationErrorResponse());
+            }
 
             try
             {
@@ -53,7 +58,7 @@ namespace Electro.Apis.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during registration for email: {Email}", model.Email);
+                _logger.LogError(ex, "Error during registration for email: {Email}", model?.Email ?? "unknown");
                 return StatusCode(500, CreateErrorResponse("Registration failed"));
             }
         }

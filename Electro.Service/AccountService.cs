@@ -91,7 +91,7 @@ namespace Electro.Service
                 FullName = dto.UserName,
                 UserName = dto.Email,
                 Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
+                PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim(),
                 EmailConfirmed = true,
                 Role = roleName,
                 Image = imageUrl,

@@ -101,16 +101,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await accountApi.register(formData);
       if (response.data?.statusCode === 200) {
-        toast.success("Registration successful");
+        toast.success("تم إنشاء الحساب بنجاح");
       }
     } catch (error: any) {
-      const msg = error.response?.data?.message || "";
-      const lower = msg.toString().toLowerCase();
-      if (lower.includes("exist") || lower.includes("already")) {
-        toast.error("Email already exists. Please login or use another email.");
-      } else {
-        toast.error(msg || "Registration failed");
+      const errorData = error.response?.data;
+      let errorMessage = "فشل إنشاء الحساب";
+      
+      if (errorData) {
+        // عرض رسالة الخطأ من الـ API
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+        
+        // عرض أخطاء الـ validation إن وجدت
+        if (errorData.errors && Array.isArray(errorData.errors)) {
+          const validationErrors = errorData.errors.join(", ");
+          errorMessage = `خطأ في البيانات: ${validationErrors}`;
+        }
+        
+        // عرض رسالة خاصة إذا كان الإيميل موجود
+        const lower = errorMessage.toLowerCase();
+        if (lower.includes("exist") || lower.includes("already")) {
+          errorMessage = "البريد الإلكتروني مستخدم بالفعل. يرجى تسجيل الدخول أو استخدام بريد آخر";
+        }
       }
+      
+      toast.error(errorMessage);
       throw error;
     }
   };
