@@ -91,7 +91,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(response.data?.message || "Login failed");
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || "فشل تسجيل الدخول";
+      let errorMessage = "فشل تسجيل الدخول";
+      
+      if (error.response?.data) {
+        const apiMessage = error.response.data.message;
+        if (apiMessage) {
+          // ترجمة رسائل الخطأ الشائعة
+          const lowerMessage = apiMessage.toLowerCase();
+          if (lowerMessage.includes("not registered") || lowerMessage.includes("email")) {
+            errorMessage = "البريد الإلكتروني غير مسجل. يرجى التحقق من البريد أو إنشاء حساب جديد";
+          } else if (lowerMessage.includes("password") || lowerMessage.includes("incorrect")) {
+            errorMessage = "كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى";
+          } else if (lowerMessage.includes("not verified") || lowerMessage.includes("email not confirmed")) {
+            errorMessage = "البريد الإلكتروني غير مفعّل. يرجى التحقق من بريدك الإلكتروني";
+          } else if (lowerMessage.includes("banned")) {
+            errorMessage = "تم حظر حسابك. يرجى التواصل مع الدعم";
+          } else if (lowerMessage.includes("inactive")) {
+            errorMessage = "حسابك غير نشط. يرجى التواصل مع الدعم";
+          } else {
+            errorMessage = apiMessage;
+          }
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast.error(errorMessage);
       throw error;
     }
