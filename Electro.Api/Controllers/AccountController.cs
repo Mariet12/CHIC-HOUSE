@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.IO;
 using System;
+using System.Linq;
 
 namespace Electro.Apis.Controllers
 {
@@ -47,7 +48,7 @@ namespace Electro.Apis.Controllers
             {
                 _logger.LogWarning("Registration validation failed for email: {Email}. Errors: {Errors}", 
                     model?.Email ?? "unknown", 
-                    string.Join(", ", ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage)));
+                    string.Join(", ", ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>()).Select(x => x.ErrorMessage)));
                 return BadRequest(CreateValidationErrorResponse());
             }
 
@@ -67,23 +68,27 @@ namespace Electro.Apis.Controllers
         public async Task<IActionResult> Login([FromBody] Login dto)
         {
             // #region agent log
-            try { var logCtrl1 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl1", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:60", message = "Login endpoint entry", data = new { dtoEmail = dto?.Email ?? "null", dtoPasswordLength = dto?.Password?.Length ?? 0, modelStateValid = ModelState.IsValid, modelStateErrors = ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage).ToList() }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl1) + "\n"); } catch { }
+            try { var logCtrl1 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl1", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:60", message = "Login endpoint entry", data = new { dtoEmail = dto?.Email ?? "null", dtoPasswordLength = dto?.Password?.Length ?? 0, modelStateValid = ModelState.IsValid, modelStateErrors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>()).Select(x => x.ErrorMessage).ToList() }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }; System.IO.File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl1) + "\n"); } catch { }
             // #endregion
 
             if (!ModelState.IsValid)
             {
                 // #region agent log
-                try { var logCtrl2 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl2", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:65", message = "ModelState invalid - returning 400", data = new { errors = ModelState.SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage).ToList() }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl2) + "\n"); } catch { }
+                try { var logCtrl2 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl2", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:65", message = "ModelState invalid - returning 400", data = new { errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>()).Select(x => x.ErrorMessage).ToList() }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }; System.IO.File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl2) + "\n"); } catch { }
                 // #endregion
                 return BadRequest(CreateValidationErrorResponse());
             }
 
             try
             {
+                if (dto == null)
+                {
+                    return BadRequest(CreateErrorResponse("Login data is required"));
+                }
                 var result = await _accountService.LoginAsync(dto);
                 
                 // #region agent log
-                try { var logCtrl3 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl3", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:75", message = "LoginAsync result", data = new { statusCode = result.StatusCode, message = result.Message }, sessionId = "debug-session", runId = "run1", hypothesisId = "RESULT" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl3) + "\n"); } catch { }
+                try { var logCtrl3 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl3", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:75", message = "LoginAsync result", data = new { statusCode = result.StatusCode, message = result.Message }, sessionId = "debug-session", runId = "run1", hypothesisId = "RESULT" }; System.IO.File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl3) + "\n"); } catch { }
                 // #endregion
 
                 return StatusCode(result.StatusCode, CreateResponse(result));
@@ -91,9 +96,9 @@ namespace Electro.Apis.Controllers
             catch (Exception ex)
             {
                 // #region agent log
-                try { var logCtrl4 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl4", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:82", message = "Exception in Login", data = new { exceptionMessage = ex.Message, exceptionType = ex.GetType().Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "EXCEPTION" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl4) + "\n"); } catch { }
+                try { var logCtrl4 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl4", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:82", message = "Exception in Login", data = new { exceptionMessage = ex.Message, exceptionType = ex.GetType().Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "EXCEPTION" }; System.IO.File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl4) + "\n"); } catch { }
                 // #endregion
-                _logger.LogError(ex, "Error during login for email: {Email}", dto.Email);
+                _logger.LogError(ex, "Error during login for email: {Email}", dto?.Email ?? "unknown");
                 return StatusCode(500, CreateErrorResponse("Login failed"));
             }
         }
@@ -352,7 +357,7 @@ namespace Electro.Apis.Controllers
             {
                 statusCode = 400,
                 message = "Validation failed",
-                errors = ModelState.SelectMany(x => x.Value.Errors)
+                errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>())
                                   .Select(x => x.ErrorMessage)
                                   .ToList()
             };
@@ -364,7 +369,7 @@ namespace Electro.Apis.Controllers
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
     }
 
     // DTO for creating admin
@@ -372,14 +377,14 @@ namespace Electro.Apis.Controllers
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
         [MinLength(6)]
-        public string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
 
         [Required]
-        public string UserName { get; set; }
+        public string UserName { get; set; } = string.Empty;
     }
 
     // DTO for activating user
@@ -387,6 +392,6 @@ namespace Electro.Apis.Controllers
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
     }
 }
