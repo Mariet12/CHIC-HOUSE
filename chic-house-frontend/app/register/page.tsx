@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -23,15 +24,15 @@ export default function RegisterPage() {
     
     // التحقق من الحقول المطلوبة
     if (!formData.userName.trim()) {
-      alert("اسم المستخدم مطلوب");
+      toast.error("اسم المستخدم مطلوب");
       return;
     }
     if (!formData.email.trim()) {
-      alert("البريد الإلكتروني مطلوب");
+      toast.error("البريد الإلكتروني مطلوب");
       return;
     }
     if (!formData.password || formData.password.length < 6) {
-      alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
       return;
     }
     
