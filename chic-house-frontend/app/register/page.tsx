@@ -20,6 +20,21 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // التحقق من الحقول المطلوبة
+    if (!formData.userName.trim()) {
+      alert("اسم المستخدم مطلوب");
+      return;
+    }
+    if (!formData.email.trim()) {
+      alert("البريد الإلكتروني مطلوب");
+      return;
+    }
+    if (!formData.password || formData.password.length < 6) {
+      alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
+      return;
+    }
+    
     setLoading(true);
     try {
       const formDataToSend = new FormData();
@@ -31,6 +46,7 @@ export default function RegisterPage() {
         formDataToSend.append("phoneNumber", formData.phoneNumber.trim());
       }
       formDataToSend.append("role", formData.role || "Customer");
+      // إضافة image فقط إذا كان موجوداً
       if (image) {
         formDataToSend.append("image", image);
       }

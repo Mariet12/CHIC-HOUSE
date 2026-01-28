@@ -44,32 +44,14 @@ namespace Electro.Apis.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromForm] Register model)
         {
-            // إزالة خطأ Image من ModelState إذا كان null (لأنه اختياري)
-            if (ModelState.ContainsKey("Image") && ModelState["Image"] != null)
+            // إزالة جميع أخطاء Image من ModelState (لأنه اختياري)
+            // ASP.NET Core قد يضيف خطأ validation تلقائياً حتى لو كان nullable
+            if (ModelState.ContainsKey("Image"))
             {
-                var imageState = ModelState["Image"];
-                if (imageState?.Errors != null)
-                {
-                    var imageErrors = imageState.Errors.Where(e => 
-                        e.ErrorMessage != null && (
-                            e.ErrorMessage.Contains("required", StringComparison.OrdinalIgnoreCase) ||
-                            e.ErrorMessage.Contains("مطلوب", StringComparison.OrdinalIgnoreCase)
-                        )
-                    ).ToList();
-                    
-                    foreach (var error in imageErrors)
-                    {
-                        imageState.Errors.Remove(error);
-                    }
-                    
-                    // إذا لم يعد هناك أخطاء في Image، أزل المفتاح من ModelState
-                    if (imageState.Errors.Count == 0)
-                    {
-                        ModelState.Remove("Image");
-                    }
-                }
+                ModelState.Remove("Image");
             }
             
+            // التحقق من صحة البيانات بعد إزالة Image
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Registration validation failed for email: {Email}. Errors: {Errors}", 
