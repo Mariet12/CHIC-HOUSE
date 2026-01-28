@@ -42,14 +42,28 @@ export default function RegisterPage() {
       formDataToSend.append("userName", formData.userName.trim());
       formDataToSend.append("email", formData.email.trim());
       formDataToSend.append("password", formData.password);
+      formDataToSend.append("role", formData.role || "Customer");
+      
       // إضافة phoneNumber فقط إذا كان له قيمة
       if (formData.phoneNumber && formData.phoneNumber.trim()) {
         formDataToSend.append("phoneNumber", formData.phoneNumber.trim());
       }
-      formDataToSend.append("role", formData.role || "Customer");
+      
       // إضافة image فقط إذا كان موجوداً
       if (image) {
         formDataToSend.append("image", image);
+      }
+
+      // Log البيانات المرسلة للتطوير
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Register FormData:", {
+          userName: formData.userName.trim(),
+          email: formData.email.trim(),
+          password: formData.password ? "***" : "",
+          role: formData.role || "Customer",
+          phoneNumber: formData.phoneNumber || "none",
+          hasImage: !!image
+        });
       }
 
       await register(formDataToSend);

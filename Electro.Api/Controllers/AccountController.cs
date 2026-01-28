@@ -44,20 +44,64 @@ namespace Electro.Apis.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromForm] Register model)
         {
+            // Log البيانات المستلمة
+            _logger.LogInformation("Register request received - Email: {Email}, UserName: {UserName}, Role: {Role}, HasImage: {HasImage}", 
+                model?.Email ?? "null", 
+                model?.UserName ?? "null",
+                model?.Role ?? "null",
+                model?.Image != null);
+            
             // إزالة جميع أخطاء Image من ModelState (لأنه اختياري)
-            // ASP.NET Core قد يضيف خطأ validation تلقائياً حتى لو كان nullable
             if (ModelState.ContainsKey("Image"))
             {
                 ModelState.Remove("Image");
             }
             
-            // التحقق من صحة البيانات بعد إزالة Image
+            // إزالة أخطاء PhoneNumber إذا كان null أو فارغ (لأنه اختياري)
+            if (ModelState.ContainsKey("PhoneNumber"))
+            {
+                var phoneState = ModelState["PhoneNumber"];
+                if (phoneState?.Errors != null && (string.IsNullOrWhiteSpace(model?.PhoneNumber)))
+                {
+                    ModelState.Remove("PhoneNumber");
+                }
+            }
+            
+            // التحقق من صحة البيانات بعد إزالة الحقول الاختيارية
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>())
+                    .Select(x => x.ErrorMessage)
+                    .ToList();
+                
                 _logger.LogWarning("Registration validation failed for email: {Email}. Errors: {Errors}", 
                     model?.Email ?? "unknown", 
-                    string.Join(", ", ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>()).Select(x => x.ErrorMessage)));
+                    string.Join(", ", errors));
+                
                 return BadRequest(CreateValidationErrorResponse());
+            }
+            
+            // التحقق اليدوي من الحقول المطلوبة
+            if (model == null)
+            {
+                return BadRequest(CreateErrorResponse("Registration data is required"));
+            }
+            
+            if (string.IsNullOrWhiteSpace(model.UserName))
+            {
+                return BadRequest(CreateErrorResponse("UserName is required"));
+            }
+            if (string.IsNullOrWhiteSpace(model.Email))
+            {
+                return BadRequest(CreateErrorResponse("Email is required"));
+            }
+            if (string.IsNullOrWhiteSpace(model.Password))
+            {
+                return BadRequest(CreateErrorResponse("Password is required"));
+            }
+            if (string.IsNullOrWhiteSpace(model.Role))
+            {
+                model.Role = "Customer"; // تعيين قيمة افتراضية
             }
 
             try
