@@ -126,6 +126,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await accountApi.register(formData);
       if (response.data?.statusCode === 200) {
         toast.success("تم إنشاء الحساب بنجاح");
+      } else {
+        throw new Error(response.data?.message || "فشل إنشاء الحساب");
       }
     } catch (error: any) {
       const errorData = error.response?.data;
@@ -147,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               }
               if (lower.includes("email")) return "البريد الإلكتروني غير صحيح";
               if (lower.includes("password") && lower.includes("length")) return "كلمة المرور يجب أن تكون 6 أحرف على الأقل";
+              if (lower.includes("invalid email")) return "تنسيق البريد الإلكتروني غير صحيح";
               return err;
             })
             .join(", ");
@@ -157,10 +160,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const lower = errorData.message.toLowerCase();
           if (lower.includes("exist") || lower.includes("already")) {
             errorMessage = "البريد الإلكتروني مستخدم بالفعل. يرجى تسجيل الدخول أو استخدام بريد آخر";
+          } else if (lower.includes("registration failed")) {
+            errorMessage = "فشل إنشاء الحساب. يرجى التحقق من البيانات والمحاولة مرة أخرى";
           } else {
             errorMessage = errorData.message;
           }
         }
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       
       toast.error(errorMessage);

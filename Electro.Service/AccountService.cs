@@ -23,11 +23,12 @@ namespace Electro.Service
     public class AccountService : IAccountService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly MailSettings _mailSettings;
         private readonly ITokenService _tokenService;
         private readonly IOtpService _otpService;
         private readonly IMemoryCache _cache;
-        private readonly SignInManager<AppUser> _signInManager;
+        private readonly SignInManager<AppUser>? _signInManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<AccountService> _logger;
         private readonly IFileService _fileService;
@@ -35,6 +36,7 @@ namespace Electro.Service
 
         public AccountService(
             UserManager<AppUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             IOptionsMonitor<MailSettings> mailSettings,
             ITokenService tokenService,
             IOtpService otpService,
@@ -45,12 +47,13 @@ namespace Electro.Service
             IFileService fileService,AppIdentityDbContext context)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _mailSettings = mailSettings.CurrentValue;
             _tokenService = tokenService;
             _otpService = otpService;
             _context = context;
             _cache = cache;
-            _signInManager = signInManager;
+            //_signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _fileService = fileService;
@@ -58,42 +61,34 @@ namespace Electro.Service
 
         public async Task<ApiResponse> RegisterAsync(Register dto)
         {
-            // تأكيد قيمة الدور الافتراضية لو مش جاية من الـ Frontend
-            var roleName = string.IsNullOrWhiteSpace(dto.Role) ? "Customer" : dto.Role;
-
-            // التأكد من عدم تكرار الإيميل
+            // Validate Role
+            var role = string.IsNullOrWhiteSpace(dto.Role) ? "User" : dto.Role;
+            
+            // Check if role exists
+            var roleManager = _userManager.GetType().GetProperty("RoleManager")?.GetValue(_userManager) as RoleManager<IdentityRole>;
+            // بدلاً من ذلك، سنستخدم طريقة أخرى للتحقق من الـRole
+            
+            // Check if user already exists
             var existingUser = await _userManager.FindByEmailAsync(dto.Email);
             if (existingUser != null)
                 return new ApiResponse(400, "User with this email already exists");
 
-            // التأكد من وجود الـ Role في جدول الـ IdentityRoles، ولو مش موجود نضيفه
-            var roleExists = await _context.Roles.AnyAsync(r => r.Name == roleName);
-            if (!roleExists)
-            {
-                await _context.Roles.AddAsync(new Microsoft.AspNetCore.Identity.IdentityRole
-                {
-                    Name = roleName,
-                    NormalizedName = roleName.ToUpper()
-                });
-                await _context.SaveChangesAsync();
-            }
-
-            // رفع الصورة إن وُجدت
+            // Handle image upload if provided
             string? imageUrl = null;
             if (dto.Image != null)
             {
                 imageUrl = await _fileService.SaveFileAsync(dto.Image, "users");
             }
 
-            // إنشاء المستخدم
+            // Create user
             var user = new AppUser
             {
                 FullName = dto.UserName,
                 UserName = dto.Email,
                 Email = dto.Email,
-                PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim(),
+                PhoneNumber = dto.PhoneNumber,
                 EmailConfirmed = true,
-                Role = roleName,
+                Role = dto.Role,
                 Image = imageUrl,
                 Status = UserStatus.Active,
             };
@@ -105,12 +100,14 @@ namespace Electro.Service
                 return new ApiResponse(400, $"Registration failed: {errors}");
             }
 
-            // إسناد الـ Role في نظام الـ Identity
-            var roleAssignResult = await _userManager.AddToRoleAsync(user, roleName);
-            if (!roleAssignResult.Succeeded)
+            // Assign role
+            var roleResult = await _userManager.AddToRoleAsync(user, dto.Role);
+            if (!roleResult.Succeeded)
             {
-                var errors = string.Join(" | ", roleAssignResult.Errors.Select(e => e.Description));
-                return new ApiResponse(400, $"Registration failed while assigning role: {errors}");
+                // إذا فشل إضافة الـRole، احذف المستخدم الذي تم إنشاؤه
+                await _userManager.DeleteAsync(user);
+                var roleErrors = string.Join(" | ", roleResult.Errors.Select(e => e.Description));
+                return new ApiResponse(400, $"Failed to assign role '{dto.Role}': {roleErrors}. Please make sure the role exists in the database.");
             }
 
             return new ApiResponse(200, "Registration successful")
@@ -120,88 +117,31 @@ namespace Electro.Service
         }
         public async Task<ApiResponse> LoginAsync(Login dto)
         {
-            // #region agent log
-            try { var log1 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_1", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:100", message = "LoginAsync entry", data = new { email = dto?.Email ?? "null", passwordLength = dto?.Password?.Length ?? 0, hasFcmToken = !string.IsNullOrEmpty(dto?.FcmToken) }, sessionId = "debug-session", runId = "run1", hypothesisId = "E" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log1) + "\n"); } catch { }
-            // #endregion
-
-            if (dto == null || string.IsNullOrEmpty(dto.Email))
-            {
-                return new ApiResponse(400, "Email is required");
-            }
-
             var user = await _userManager.FindByEmailAsync(dto.Email);
-            
-            // #region agent log
-            try { var log2 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_2", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:105", message = "After FindByEmailAsync", data = new { userFound = user != null, userId = user?.Id, userEmail = user?.Email, emailConfirmed = user?.EmailConfirmed, userStatus = user?.Status.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log2) + "\n"); } catch { }
-            // #endregion
-
             if (user == null)
             {
-                // #region agent log
-                try { var log3 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_3", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:108", message = "User not found - returning 401", data = new { searchedEmail = dto.Email }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log3) + "\n"); } catch { }
-                // #endregion
                 return new ApiResponse(401, "This email is not registered.");
             }
 
-            var passwordCheck = await _userManager.CheckPasswordAsync(user, dto.Password);
-            
-            // #region agent log
-            try { var log4 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_4", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:115", message = "After CheckPasswordAsync", data = new { passwordValid = passwordCheck, userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "B" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log4) + "\n"); } catch { }
-            // #endregion
-
-            if (!passwordCheck)
+            if (!await _userManager.CheckPasswordAsync(user, dto.Password))
             {
-                // #region agent log
-                try { var log5 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_5", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:118", message = "Password incorrect - returning 401", data = new { userId = user.Id, email = user.Email }, sessionId = "debug-session", runId = "run1", hypothesisId = "B" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log5) + "\n"); } catch { }
-                // #endregion
                 return new ApiResponse(401, "Incorrect password. Please try again.");
             }
 
-            // #region agent log
-            try { var log6 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_6", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:123", message = "Checking EmailConfirmed", data = new { emailConfirmed = user.EmailConfirmed, userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log6) + "\n"); } catch { }
-            // #endregion
-
             if (!user.EmailConfirmed)
             {
-                // #region agent log
-                try { var log7 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_7", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:126", message = "Email not confirmed - returning 403", data = new { userId = user.Id, email = user.Email }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log7) + "\n"); } catch { }
-                // #endregion
                 return new ApiResponse(403, "Email not verified. Please check your inbox.");
             }
 
             // Check user status
-            // #region agent log
-            try { var log8 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_8", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:133", message = "Checking user status", data = new { status = user.Status.ToString(), userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log8) + "\n"); } catch { }
-            // #endregion
-
             switch (user.Status)
             {
-                case UserStatus.Banned: 
-                    // #region agent log
-                    try { var log9 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_9", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:137", message = "User banned - returning 403", data = new { userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log9) + "\n"); } catch { }
-                    // #endregion
-                    return new ApiResponse(403, "Your account has been banned.");
-                case UserStatus.Rejected: 
-                    // #region agent log
-                    try { var log10 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_10", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:140", message = "User rejected - returning 403", data = new { userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log10) + "\n"); } catch { }
-                    // #endregion
-                    return new ApiResponse(403, "Your account has been rejected.");
-                case UserStatus.Inactive: 
-                    // #region agent log
-                    try { var log11 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_11", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:143", message = "User inactive - returning 403", data = new { userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log11) + "\n"); } catch { }
-                    // #endregion
-                    return new ApiResponse(403, "Your account is inactive. Please contact support.");
-                case UserStatus.Deleted: 
-                    // #region agent log
-                    try { var log12 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_12", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:146", message = "User deleted - returning 403", data = new { userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log12) + "\n"); } catch { }
-                    // #endregion
-                    return new ApiResponse(403, "Your account has been deleted.");
+                case UserStatus.Banned: return new ApiResponse(403, "Your account has been banned.");
+                case UserStatus.Rejected: return new ApiResponse(403, "Your account has been rejected.");
+                case UserStatus.Inactive: return new ApiResponse(403, "Your account is inactive. Please contact support.");
+                case UserStatus.Deleted: return new ApiResponse(403, "Your account has been deleted.");
                 case UserStatus.Active: break;
-                default: 
-                    // #region agent log
-                    try { var log13 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_13", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:150", message = "Invalid status - returning 403", data = new { status = user.Status.ToString(), userId = user.Id }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log13) + "\n"); } catch { }
-                    // #endregion
-                    return new ApiResponse(403, "Your account status is not valid for login.");
+                default: return new ApiResponse(403, "Your account status is not valid for login.");
             }
 
             // ✨ لو جالك FcmToken في DTO، خزّنه في الجدول
@@ -211,26 +151,20 @@ namespace Electro.Service
             }
 
             var token = await _tokenService.CreateTokenAsync(user);
-            
-            // #region agent log
-            try { var log14 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_14", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountService.cs:162", message = "Login successful", data = new { userId = user.Id, email = user.Email, tokenGenerated = !string.IsNullOrEmpty(token) }, sessionId = "debug-session", runId = "run1", hypothesisId = "SUCCESS" }; File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(log14) + "\n"); } catch { }
-            // #endregion
-
+            var roles = await _userManager.GetRolesAsync(user);
             return new ApiResponse(200, "Login successful")
             {
                 Data = new
                 {
-                    userId = user.Id,
+                    id = user.Id,
                     email = user.Email,
+                    displayName = user.UserName,
+                    phoneNumber = user.PhoneNumber,
+                    imageUrl = user.Image,
                     token = token,
                     role = user.Role,
+                    roles = roles.ToList(),
                     status = user.Status.ToString(),
-                    user = new
-                    {
-                        user.UserName,
-                        user.PhoneNumber,
-                        user.Image
-                    }
                 }
             };
         }

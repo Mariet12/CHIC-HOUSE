@@ -44,74 +44,33 @@ namespace Electro.Apis.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromForm] Register model)
         {
-            // Log البيانات المستلمة
-            _logger.LogInformation("Register request received - Email: {Email}, UserName: {UserName}, Role: {Role}, HasImage: {HasImage}", 
-                model?.Email ?? "null", 
-                model?.UserName ?? "null",
-                model?.Role ?? "null",
-                model?.Image != null);
-            
-            // إزالة جميع أخطاء Image من ModelState (لأنه اختياري)
-            if (ModelState.ContainsKey("Image"))
-            {
-                ModelState.Remove("Image");
-            }
-            
-            // إزالة أخطاء PhoneNumber إذا كان null أو فارغ (لأنه اختياري)
-            if (ModelState.ContainsKey("PhoneNumber"))
-            {
-                var phoneState = ModelState["PhoneNumber"];
-                if (phoneState?.Errors != null && (string.IsNullOrWhiteSpace(model?.PhoneNumber)))
-                {
-                    ModelState.Remove("PhoneNumber");
-                }
-            }
-            
-            // التحقق من صحة البيانات بعد إزالة الحقول الاختيارية
+            _logger.LogInformation("Registration attempt for email: {Email}, UserName: {UserName}, Role: {Role}", 
+                model?.Email, model?.UserName, model?.Role);
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>())
-                    .Select(x => x.ErrorMessage)
-                    .ToList();
-                
-                _logger.LogWarning("Registration validation failed for email: {Email}. Errors: {Errors}", 
-                    model?.Email ?? "unknown", 
-                    string.Join(", ", errors));
-                
+                                      .Select(x => x.ErrorMessage)
+                                      .ToList();
+                _logger.LogWarning("ModelState validation failed: {Errors}", string.Join(", ", errors));
                 return BadRequest(CreateValidationErrorResponse());
             }
-            
-            // التحقق اليدوي من الحقول المطلوبة
+
             if (model == null)
             {
                 return BadRequest(CreateErrorResponse("Registration data is required"));
-            }
-            
-            if (string.IsNullOrWhiteSpace(model.UserName))
-            {
-                return BadRequest(CreateErrorResponse("UserName is required"));
-            }
-            if (string.IsNullOrWhiteSpace(model.Email))
-            {
-                return BadRequest(CreateErrorResponse("Email is required"));
-            }
-            if (string.IsNullOrWhiteSpace(model.Password))
-            {
-                return BadRequest(CreateErrorResponse("Password is required"));
-            }
-            if (string.IsNullOrWhiteSpace(model.Role))
-            {
-                model.Role = "Customer"; // تعيين قيمة افتراضية
             }
 
             try
             {
                 var result = await _accountService.RegisterAsync(model);
+                _logger.LogInformation("Registration result: StatusCode={StatusCode}, Message={Message}", 
+                    result.StatusCode, result.Message);
                 return StatusCode(result.StatusCode, CreateResponse(result));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during registration for email: {Email}", model?.Email ?? "unknown");
+                _logger.LogError(ex, "Error during registration for email: {Email}", model?.Email);
                 return StatusCode(500, CreateErrorResponse("Registration failed"));
             }
         }
@@ -119,38 +78,17 @@ namespace Electro.Apis.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login dto)
         {
-            // #region agent log
-            try { var logCtrl1 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl1", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:60", message = "Login endpoint entry", data = new { dtoEmail = dto?.Email ?? "null", dtoPasswordLength = dto?.Password?.Length ?? 0, modelStateValid = ModelState.IsValid, modelStateErrors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>()).Select(x => x.ErrorMessage).ToList() }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }; System.IO.File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl1) + "\n"); } catch { }
-            // #endregion
-
             if (!ModelState.IsValid)
-            {
-                // #region agent log
-                try { var logCtrl2 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl2", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:65", message = "ModelState invalid - returning 400", data = new { errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>()).Select(x => x.ErrorMessage).ToList() }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }; System.IO.File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl2) + "\n"); } catch { }
-                // #endregion
                 return BadRequest(CreateValidationErrorResponse());
-            }
 
             try
             {
-                if (dto == null)
-                {
-                    return BadRequest(CreateErrorResponse("Login data is required"));
-                }
                 var result = await _accountService.LoginAsync(dto);
-                
-                // #region agent log
-                try { var logCtrl3 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl3", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:75", message = "LoginAsync result", data = new { statusCode = result.StatusCode, message = result.Message }, sessionId = "debug-session", runId = "run1", hypothesisId = "RESULT" }; System.IO.File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl3) + "\n"); } catch { }
-                // #endregion
-
                 return StatusCode(result.StatusCode, CreateResponse(result));
             }
             catch (Exception ex)
             {
-                // #region agent log
-                try { var logCtrl4 = new { id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_ctrl4", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "AccountController.cs:82", message = "Exception in Login", data = new { exceptionMessage = ex.Message, exceptionType = ex.GetType().Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "EXCEPTION" }; System.IO.File.AppendAllText(@"c:\Users\marie\Desktop\HAND MADE\.cursor\debug.log", JsonSerializer.Serialize(logCtrl4) + "\n"); } catch { }
-                // #endregion
-                _logger.LogError(ex, "Error during login for email: {Email}", dto?.Email ?? "unknown");
+                _logger.LogError(ex, "Error during login for email: {Email}", dto.Email);
                 return StatusCode(500, CreateErrorResponse("Login failed"));
             }
         }
@@ -320,57 +258,6 @@ namespace Electro.Apis.Controllers
             return StatusCode(result.StatusCode, CreateResponse(result));
         }
 
-        [HttpPost("create-admin")]
-        public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(CreateValidationErrorResponse());
-
-            try
-            {
-                var result = await _accountService.CreateAdminAsync(dto.Email, dto.Password, dto.UserName);
-                return StatusCode(result.StatusCode, CreateResponse(result));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating admin for email: {Email}", dto.Email);
-                return StatusCode(500, CreateErrorResponse("Admin creation failed"));
-            }
-        }
-
-        [HttpPost("activate-all-users")]
-        public async Task<IActionResult> ActivateAllUsers()
-        {
-            try
-            {
-                var result = await _accountService.ActivateAllUsersAsync();
-                return StatusCode(result.StatusCode, CreateResponse(result));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error activating users");
-                return StatusCode(500, CreateErrorResponse("Failed to activate users"));
-            }
-        }
-
-        [HttpPost("activate-user")]
-        public async Task<IActionResult> ActivateUser([FromBody] ActivateUserDto dto)
-        {
-            if (string.IsNullOrEmpty(dto.Email))
-                return BadRequest(CreateErrorResponse("Email is required"));
-
-            try
-            {
-                var result = await _accountService.ActivateUserByEmailAsync(dto.Email);
-                return StatusCode(result.StatusCode, CreateResponse(result));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error activating user: {Email}", dto.Email);
-                return StatusCode(500, CreateErrorResponse("Failed to activate user"));
-            }
-        }
-
        
         // Helper methods
         private object CreateResponse(ApiResponse result)
@@ -418,29 +305,6 @@ namespace Electro.Apis.Controllers
 
     // DTO for forgot password
     public class ForgotPasswordDto
-    {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-    }
-
-    // DTO for creating admin
-    public class CreateAdminDto
-    {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-
-        [Required]
-        [MinLength(6)]
-        public string Password { get; set; } = string.Empty;
-
-        [Required]
-        public string UserName { get; set; } = string.Empty;
-    }
-
-    // DTO for activating user
-    public class ActivateUserDto
     {
         [Required]
         [EmailAddress]

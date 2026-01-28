@@ -39,19 +39,19 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("userName", formData.userName.trim());
-      formDataToSend.append("email", formData.email.trim());
-      formDataToSend.append("password", formData.password);
-      formDataToSend.append("role", formData.role || "Customer");
+      formDataToSend.append("UserName", formData.userName.trim());
+      formDataToSend.append("Email", formData.email.trim());
+      formDataToSend.append("Password", formData.password);
+      formDataToSend.append("Role", formData.role || "Customer");
       
-      // إضافة phoneNumber فقط إذا كان له قيمة
+      // إضافة PhoneNumber فقط إذا كان له قيمة
       if (formData.phoneNumber && formData.phoneNumber.trim()) {
-        formDataToSend.append("phoneNumber", formData.phoneNumber.trim());
+        formDataToSend.append("PhoneNumber", formData.phoneNumber.trim());
       }
       
-      // إضافة image فقط إذا كان موجوداً
+      // إضافة Image فقط إذا كان موجوداً
       if (image) {
-        formDataToSend.append("image", image);
+        formDataToSend.append("Image", image);
       }
 
       // Log البيانات المرسلة للتطوير
