@@ -61,12 +61,20 @@ namespace Electro.Service
 
         public async Task<ApiResponse> RegisterAsync(Register dto)
         {
-            // Validate Role
-            var role = string.IsNullOrWhiteSpace(dto.Role) ? "User" : dto.Role;
+            // Validate Role - use "Customer" as default to match frontend
+            var role = string.IsNullOrWhiteSpace(dto.Role) ? "Customer" : dto.Role;
             
-            // Check if role exists
-            var roleManager = _userManager.GetType().GetProperty("RoleManager")?.GetValue(_userManager) as RoleManager<IdentityRole>;
-            // بدلاً من ذلك، سنستخدم طريقة أخرى للتحقق من الـRole
+            // Check if role exists in database, create if not
+            var roleExists = await _context.Roles.AnyAsync(r => r.Name == role);
+            if (!roleExists)
+            {
+                await _context.Roles.AddAsync(new Microsoft.AspNetCore.Identity.IdentityRole
+                {
+                    Name = role,
+                    NormalizedName = role.ToUpper()
+                });
+                await _context.SaveChangesAsync();
+            }
             
             // Check if user already exists
             var existingUser = await _userManager.FindByEmailAsync(dto.Email);
@@ -88,7 +96,7 @@ namespace Electro.Service
                 Email = dto.Email,
                 PhoneNumber = dto.PhoneNumber,
                 EmailConfirmed = true,
-                Role = dto.Role,
+                Role = role,
                 Image = imageUrl,
                 Status = UserStatus.Active,
             };
@@ -101,13 +109,13 @@ namespace Electro.Service
             }
 
             // Assign role
-            var roleResult = await _userManager.AddToRoleAsync(user, dto.Role);
+            var roleResult = await _userManager.AddToRoleAsync(user, role);
             if (!roleResult.Succeeded)
             {
                 // إذا فشل إضافة الـRole، احذف المستخدم الذي تم إنشاؤه
                 await _userManager.DeleteAsync(user);
                 var roleErrors = string.Join(" | ", roleResult.Errors.Select(e => e.Description));
-                return new ApiResponse(400, $"Failed to assign role '{dto.Role}': {roleErrors}. Please make sure the role exists in the database.");
+                return new ApiResponse(400, $"Failed to assign role '{role}': {roleErrors}. Please make sure the role exists in the database.");
             }
 
             return new ApiResponse(200, "Registration successful")

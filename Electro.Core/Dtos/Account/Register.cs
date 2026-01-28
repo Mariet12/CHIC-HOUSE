@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,7 +23,6 @@ namespace Electro.Core.Dtos.Account
 
         public string? PhoneNumber { get; set; }
 
-        [Required]
         public string Role { get; set; } = "Customer";
 
         public IFormFile? Image { get; set; }
