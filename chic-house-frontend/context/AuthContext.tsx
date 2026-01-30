@@ -46,6 +46,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!Number.isNaN(exp) && now < exp) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
+        // تحديث بيانات المستخدم من السيرفر (بما فيها الـ role) لضمان ظهور لوحة الأدمن لو كان أدمن
+        accountApi.getUserInfo()
+          .then((res) => {
+            const d = res.data?.data;
+            if (d && res.data?.statusCode === 200) {
+              const updatedUser = {
+                id: d.id ?? d.Id,
+                email: d.email ?? d.Email,
+                userName: d.userName ?? d.UserName ?? d.email,
+                phoneNumber: d.phoneNumber ?? d.PhoneNumber,
+                image: d.image ?? d.Image,
+                role: d.role ?? d.Role ?? d.roles?.[0] ?? d.Roles?.[0],
+                status: d.status ?? d.Status,
+              };
+              setUser(updatedUser);
+              localStorage.setItem("user", JSON.stringify(updatedUser));
+            }
+          })
+          .catch(() => { /* تجاهل خطأ التوكن المنتهي أو الشبكة */ });
       } else {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -62,13 +81,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.data?.data) {
         const data = response.data.data;
         const newToken = data.token;
+        // الباكند يرسل: id, displayName, imageUrl, role, roles
         const userData = {
-          id: data.userId || data.user?.id,
+          id: data.id || data.userId || data.user?.id,
           email: data.email,
-          userName: data.user?.userName || data.userName || email,
-          phoneNumber: data.user?.phoneNumber || data.phoneNumber,
-          image: data.user?.image || data.image,
-          role: data.role,
+          userName: data.displayName ?? data.user?.userName ?? data.userName ?? email,
+          phoneNumber: data.phoneNumber ?? data.user?.phoneNumber,
+          image: data.imageUrl ?? data.user?.image ?? data.image,
+          role: data.role ?? data.roles?.[0],
           status: data.status,
         };
         

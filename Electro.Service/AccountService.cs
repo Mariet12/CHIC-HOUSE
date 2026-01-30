@@ -182,6 +182,9 @@ namespace Electro.Service
 
             var token = await _tokenService.CreateTokenAsync(user);
             var roles = await _userManager.GetRolesAsync(user);
+            var rolesList = roles.ToList();
+            // استخدام دور من Identity لو عمود Role في الجدول فاضي (مثلاً مستخدم قديم)
+            var effectiveRole = !string.IsNullOrEmpty(user.Role) ? user.Role : (rolesList.FirstOrDefault() ?? "Customer");
             return new ApiResponse(200, "Login successful")
             {
                 Data = new
@@ -192,8 +195,8 @@ namespace Electro.Service
                     phoneNumber = user.PhoneNumber,
                     imageUrl = user.Image,
                     token = token,
-                    role = user.Role,
-                    roles = roles.ToList(),
+                    role = effectiveRole,
+                    roles = rolesList,
                     status = user.Status.ToString(),
                 }
             };
@@ -437,18 +440,18 @@ namespace Electro.Service
             }
 
             var roles = await _userManager.GetRolesAsync(user);
+            var rolesList = roles.ToList();
+            var effectiveRole = !string.IsNullOrEmpty(user.Role) ? user.Role : (rolesList.FirstOrDefault() ?? "Customer");
             return new ApiResponse(200, "User info retrieved successfully", new
             {
                 user.Id,
                 user.UserName,
                 user.Email,
                 user.PhoneNumber,
-               
                 user.Image,
                 user.EmailConfirmed,
-                Role = user.Role,
+                Role = effectiveRole,
                 user.Status,
-               
             });
         }
 

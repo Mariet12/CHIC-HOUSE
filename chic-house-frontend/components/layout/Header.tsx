@@ -132,7 +132,7 @@ export default function Header() {
                       }}
                     >
                       <div className="py-2" style={{ overflow: 'visible' }}>
-                        {user?.role === "Admin" && (
+                        {(user?.role?.toLowerCase() === "admin") && (
                           <>
                             <Link 
                               href="/admin/dashboard"
