@@ -51,10 +51,10 @@ export default function FavoritesPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-primary">Favorites</h1>
+      <h1 className="text-3xl font-bold mb-8 text-primary">المفضلة</h1>
       {products.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-xl text-primary-dark mb-4">No favorite products</p>
+          <p className="text-xl text-primary-dark mb-4">لا توجد منتجات في المفضلة</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

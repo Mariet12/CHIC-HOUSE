@@ -105,7 +105,7 @@ export default function Header() {
                 <button 
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="p-2 hover:bg-secondary rounded-full transition-colors"
-                  aria-label="User menu"
+                  aria-label="قائمة المستخدم"
                 >
                   <User className="w-6 h-6 text-brandSand" />
                 </button>

@@ -45,3 +45,5 @@ Electro.Api/wwwroot/**/*.json
 *.user
 *.suo
 
+
+.fake

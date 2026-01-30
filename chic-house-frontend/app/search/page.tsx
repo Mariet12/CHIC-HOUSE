@@ -73,7 +73,7 @@ function SearchContent() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-primary">Search</h1>
+      <h1 className="text-3xl font-bold mb-8 text-primary">البحث</h1>
 
       <form onSubmit={handleSearch} className="mb-8">
         <div className="flex gap-2">
@@ -81,14 +81,14 @@ function SearchContent() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for a gift or decor..."
+            placeholder="ابحث عن هدية أو قطعة ديكور..."
             className="flex-1 px-4 py-2 border rounded-lg"
           />
           <button
             type="submit"
             className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-light"
           >
-            Search
+            بحث
           </button>
         </div>
       </form>
@@ -96,7 +96,7 @@ function SearchContent() {
       {/* Category Filter */}
       {categories.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4 text-primary">Filter by Category</h2>
+          <h2 className="text-xl font-bold mb-4 text-primary">تصفية حسب القسم</h2>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleCategoryFilter(null)}
@@ -106,7 +106,7 @@ function SearchContent() {
                   : "bg-secondary-light text-primary border border-secondary-dark hover:bg-secondary"
               }`}
             >
-              All
+              الكل
             </button>
             {categories.map((category) => (
               <button
@@ -126,12 +126,12 @@ function SearchContent() {
       )}
 
       {loading ? (
-        <div className="text-center py-12">Searching...</div>
+        <div className="text-center py-12">جاري البحث...</div>
       ) : results ? (
         <div>
           {results.products && results.products.items.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">Products</h2>
+              <h2 className="text-2xl font-bold mb-4">المنتجات</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {results.products.items.map((product: any) => (
                   <ProductCard key={product.id} product={product} />
@@ -142,7 +142,7 @@ function SearchContent() {
 
           {results.categories && results.categories.items.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">Categories</h2>
+              <h2 className="text-2xl font-bold mb-4">الأقسام</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {results.categories.items.map((category: any) => (
                   <Link
@@ -160,13 +160,13 @@ function SearchContent() {
           {(!results.products || results.products.items.length === 0) &&
             (!results.categories || results.categories.items.length === 0) && (
               <div className="text-center py-12">
-                <p className="text-xl text-primary-dark">No results found</p>
+                <p className="text-xl text-primary-dark">لا توجد نتائج</p>
               </div>
             )}
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-primary-dark">Start searching for a gift or decor</p>
+          <p className="text-primary-dark">ابدأ بالبحث عن هدية أو قطعة ديكور</p>
         </div>
       )}
     </div>

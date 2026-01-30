@@ -95,7 +95,7 @@ export default function AddAdminUserPage() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
                 className="w-full px-4 py-2 border border-secondary-dark rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="example@email.com"
+                placeholder="مثال@البريد.com"
               />
             </div>
 

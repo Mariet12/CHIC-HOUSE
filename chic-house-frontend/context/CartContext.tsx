@@ -64,7 +64,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       await cartApi.addToCart({ productId, quantity });
       await fetchCart();
-      toast.success("Added to cart");
+      toast.success("تمت الإضافة للسلة");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Operation failed");
     }

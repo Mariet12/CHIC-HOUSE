@@ -50,29 +50,29 @@ export default function OrderDetailsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-secondary-light p-6 rounded-lg shadow-md border border-secondary-dark">
-          <h2 className="text-xl font-bold mb-4">Order Information</h2>
+          <h2 className="text-xl font-bold mb-4">معلومات الطلب</h2>
           <div className="space-y-2">
-            <p><strong>Status:</strong> {order.statusText}</p>
-            <p><strong>Total:</strong> ${order.totalAmount}</p>
-            <p><strong>Payment Status:</strong> {order.paymentStatus ? "Paid" : "Unpaid"}</p>
-            <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
-            <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString("en-US")}</p>
+            <p><strong>الحالة:</strong> {order.statusText}</p>
+            <p><strong>الإجمالي:</strong> {order.totalAmount} ج.م</p>
+            <p><strong>حالة الدفع:</strong> {order.paymentStatus ? "مدفوع" : "غير مدفوع"}</p>
+            <p><strong>طريقة الدفع:</strong> {order.paymentMethod}</p>
+            <p><strong>التاريخ:</strong> {new Date(order.createdAt).toLocaleString("ar-EG")}</p>
           </div>
         </div>
 
         <div className="bg-secondary-light p-6 rounded-lg shadow-md border border-secondary-dark">
-          <h2 className="text-xl font-bold mb-4">Shipping Information</h2>
+          <h2 className="text-xl font-bold mb-4">معلومات التوصيل</h2>
           <div className="space-y-2">
-            <p><strong>Name:</strong> {order.fullName}</p>
-            <p><strong>Phone:</strong> {order.phoneNumber}</p>
-            <p><strong>Email:</strong> {order.email || "Not available"}</p>
-            <p><strong>Address:</strong> {order.shippingAddress}</p>
+            <p><strong>الاسم:</strong> {order.fullName}</p>
+            <p><strong>الهاتف:</strong> {order.phoneNumber}</p>
+            <p><strong>البريد:</strong> {order.email || "غير متوفر"}</p>
+            <p><strong>العنوان:</strong> {order.shippingAddress}</p>
           </div>
         </div>
       </div>
 
       <div className="mt-8 bg-secondary-light p-6 rounded-lg shadow-md border border-secondary-dark">
-        <h2 className="text-xl font-bold mb-4">Products</h2>
+        <h2 className="text-xl font-bold mb-4">المنتجات</h2>
         <div className="space-y-4">
           {order.items?.map((item: any) => (
             <div key={item.id} className="flex items-center gap-4 border-b pb-4">
@@ -88,11 +88,11 @@ export default function OrderDetailsPage() {
               </div>
               <div className="flex-1">
                 <h3 className="font-bold">{item.productName}</h3>
-                <p className="text-gray-600">Quantity: {item.quantity}</p>
+                <p className="text-gray-600">الكمية: {item.quantity}</p>
               </div>
               <div className="text-right">
-                <p className="font-bold">${item.totalPrice}</p>
-                <p className="text-sm text-gray-600">${item.unitPrice} per item</p>
+                <p className="font-bold">{item.totalPrice} ج.م</p>
+                <p className="text-sm text-gray-600">{item.unitPrice} ج.م للقطعة</p>
               </div>
             </div>
           ))}

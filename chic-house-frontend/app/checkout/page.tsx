@@ -61,13 +61,13 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-primary">Checkout</h1>
+      <h1 className="text-3xl font-bold mb-8 text-primary">إتمام الطلب</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <form onSubmit={handleSubmit} className="bg-secondary-light p-6 rounded-lg shadow-md space-y-4 border border-secondary-dark">
             <div>
-              <label className="block text-sm font-medium mb-2">Full Name *</label>
+              <label className="block text-sm font-medium mb-2">الاسم الكامل *</label>
               <input
                 type="text"
                 value={formData.fullName}
@@ -77,7 +77,7 @@ export default function CheckoutPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Phone Number *</label>
+              <label className="block text-sm font-medium mb-2">رقم الهاتف *</label>
               <input
                 type="tel"
                 value={formData.phoneNumber}
@@ -87,7 +87,7 @@ export default function CheckoutPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
+              <label className="block text-sm font-medium mb-2">البريد الإلكتروني</label>
               <input
                 type="email"
                 value={formData.email}
@@ -96,7 +96,7 @@ export default function CheckoutPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Shipping Address *</label>
+              <label className="block text-sm font-medium mb-2">عنوان التوصيل *</label>
               <textarea
                 value={formData.shippingAddress}
                 onChange={(e) => setFormData({ ...formData, shippingAddress: e.target.value })}
@@ -106,18 +106,18 @@ export default function CheckoutPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Payment Method *</label>
+              <label className="block text-sm font-medium mb-2">طريقة الدفع *</label>
               <select
                 value={formData.paymentMethod}
                 onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg"
               >
-                <option value="cash">Cash on Delivery</option>
-                <option value="card">Credit Card</option>
+                <option value="cash">الدفع عند الاستلام</option>
+                <option value="card">بطاقة ائتمان</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Notes</label>
+              <label className="block text-sm font-medium mb-2">ملاحظات</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -130,25 +130,25 @@ export default function CheckoutPage() {
               disabled={loading}
               className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary-light disabled:opacity-50"
             >
-              {loading ? "Processing..." : "Place Order"}
+              {loading ? "جاري المعالجة..." : "تأكيد الطلب"}
             </button>
           </form>
         </div>
 
         <div className="bg-secondary-light p-6 rounded-lg shadow-md h-fit border border-secondary-dark">
-          <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+          <h2 className="text-xl font-bold mb-4">ملخص الطلب</h2>
           <div className="space-y-2 mb-4">
             {cartItems.map((item) => (
               <div key={item.id} className="flex justify-between">
                 <span>{item.productName} x {item.quantity}</span>
-                <span>${item.totalPrice}</span>
+                <span>{item.totalPrice} ج.م</span>
               </div>
             ))}
           </div>
           <div className="border-t pt-4">
             <div className="flex justify-between text-xl font-bold">
-              <span>Total:</span>
-              <span>${totalAmount}</span>
+              <span>المجموع:</span>
+              <span>{totalAmount} ج.م</span>
             </div>
           </div>
         </div>

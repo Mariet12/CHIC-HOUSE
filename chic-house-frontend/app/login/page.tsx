@@ -36,10 +36,10 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary-light px-4 py-12">
       <div className="max-w-md w-full bg-secondary-light p-8 rounded-lg shadow-lg border border-secondary-dark">
-        <h1 className="brand-title text-center mb-8">Login</h1>
+        <h1 className="brand-title text-center mb-8">تسجيل الدخول</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
+            <label className="block text-sm font-medium mb-2">البريد الإلكتروني</label>
             <input
               type="email"
               value={email}
@@ -49,7 +49,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Password</label>
+            <label className="block text-sm font-medium mb-2">كلمة المرور</label>
             <input
               type="password"
               value={password}
@@ -67,7 +67,7 @@ export default function LoginPage() {
               className="h-4 w-4"
             />
             <label htmlFor="rememberMe" className="text-sm select-none">
-              Remember me for 30 days
+              تذكرني لمدة 30 يوماً
             </label>
           </div>
           <button
@@ -75,17 +75,17 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary-light transition-smooth disabled:opacity-50"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
           </button>
         </form>
         <div className="mt-6 text-center space-y-2">
           <Link href="/forgot-password" className="text-primary hover:underline">
-            Forgot Password?
+            نسيت كلمة المرور؟
           </Link>
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            ليس لديك حساب؟{" "}
             <Link href="/register" className="text-primary hover:underline">
-              Sign Up Now
+              سجّل الآن
             </Link>
           </p>
         </div>

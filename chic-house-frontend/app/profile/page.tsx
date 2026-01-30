@@ -84,15 +84,15 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-primary">Profile</h1>
+      <h1 className="text-3xl font-bold mb-8 text-primary">الملف الشخصي</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* User Information */}
         <div className="bg-secondary-light p-6 rounded-lg shadow-md border border-secondary-dark">
-          <h2 className="text-xl font-bold mb-4">Personal Information</h2>
+          <h2 className="text-xl font-bold mb-4">البيانات الشخصية</h2>
           <form onSubmit={handleUpdate} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Username</label>
+              <label className="block text-sm font-medium mb-2">اسم المستخدم</label>
               <input
                 type="text"
                 value={formData.userName}
@@ -101,7 +101,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
+              <label className="block text-sm font-medium mb-2">البريد الإلكتروني</label>
               <input
                 type="email"
                 value={formData.email}
@@ -110,7 +110,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Phone Number</label>
+              <label className="block text-sm font-medium mb-2">رقم الهاتف</label>
               <input
                 type="tel"
                 value={formData.phoneNumber}
@@ -119,11 +119,11 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Profile Picture</label>
+              <label className="block text-sm font-medium mb-2">صورة الملف الشخصي</label>
               {userInfo?.image && (
                 <Image
                   src={userInfo.image}
-                  alt="Profile"
+                  alt="الملف الشخصي"
                   width={100}
                   height={100}
                   className="rounded-full mb-2"
@@ -140,17 +140,17 @@ export default function ProfilePage() {
               type="submit"
               className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-light"
             >
-              Save Changes
+              حفظ التغييرات
             </button>
           </form>
         </div>
 
         {/* Change Password */}
         <div className="bg-secondary-light p-6 rounded-lg shadow-md border border-secondary-dark">
-          <h2 className="text-xl font-bold mb-4">Change Password</h2>
+          <h2 className="text-xl font-bold mb-4">تغيير كلمة المرور</h2>
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Current Password</label>
+              <label className="block text-sm font-medium mb-2">كلمة المرور الحالية</label>
               <input
                 type="password"
                 name="currentPassword"
@@ -159,7 +159,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">New Password</label>
+              <label className="block text-sm font-medium mb-2">كلمة المرور الجديدة</label>
               <input
                 type="password"
                 name="newPassword"
@@ -171,7 +171,7 @@ export default function ProfilePage() {
               type="submit"
               className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-light"
             >
-              Change Password
+              تغيير كلمة المرور
             </button>
           </form>
         </div>

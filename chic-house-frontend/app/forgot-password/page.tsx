@@ -58,12 +58,12 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary-light px-4">
       <div className="max-w-md w-full bg-secondary-light p-8 rounded-lg shadow-lg border border-secondary-dark">
-        <h1 className="brand-title text-center mb-8">Reset Password</h1>
+        <h1 className="brand-title text-center mb-8">استعادة كلمة المرور</h1>
 
         {step === "email" && (
           <form onSubmit={handleSendOtp} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
+              <label className="block text-sm font-medium mb-2">البريد الإلكتروني</label>
               <input
                 type="email"
                 value={email}
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full bg-primary text-white py-3 rounded-lg"
             >
-              {loading ? "Sending..." : "Send Verification Code"}
+              {loading ? "جاري الإرسال..." : "إرسال رمز التحقق"}
             </button>
           </form>
         )}
@@ -85,7 +85,7 @@ export default function ForgotPasswordPage() {
         {step === "otp" && (
           <form onSubmit={handleVerifyOtp} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">Verification Code</label>
+              <label className="block text-sm font-medium mb-2">رمز التحقق</label>
               <input
                 type="text"
                 value={otp}
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full bg-primary text-white py-3 rounded-lg"
             >
-              {loading ? "Verifying..." : "Verify"}
+              {loading ? "جاري التحقق..." : "تحقق"}
             </button>
           </form>
         )}
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
         {step === "reset" && (
           <form onSubmit={handleResetPassword} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">New Password</label>
+              <label className="block text-sm font-medium mb-2">كلمة المرور الجديدة</label>
               <input
                 type="password"
                 value={newPassword}
@@ -121,7 +121,7 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full bg-primary text-white py-3 rounded-lg"
             >
-              {loading ? "Saving..." : "Save New Password"}
+              {loading ? "جاري الحفظ..." : "حفظ كلمة المرور الجديدة"}
             </button>
           </form>
         )}

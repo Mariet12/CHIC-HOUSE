@@ -69,20 +69,20 @@ export default function NotificationsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-primary">Notifications</h1>
+        <h1 className="text-3xl font-bold text-primary">الإشعارات</h1>
         {notifications.length > 0 && (
           <button
             onClick={handleMarkAllAsRead}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light"
           >
-            Mark All as Read
+            تحديد الكل كمقروء
           </button>
         )}
       </div>
 
       {notifications.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-xl text-primary-dark">No notifications</p>
+          <p className="text-xl text-primary-dark">لا توجد إشعارات</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -98,7 +98,7 @@ export default function NotificationsPage() {
                   <h3 className="font-bold text-lg">{notification.title}</h3>
                   <p className="text-gray-600 mt-2">{notification.message}</p>
                   <p className="text-sm text-gray-400 mt-2">
-                    {new Date(notification.createdAt).toLocaleString("en-US")}
+                    {new Date(notification.createdAt).toLocaleString("ar-EG")}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -107,14 +107,14 @@ export default function NotificationsPage() {
                       onClick={() => handleMarkAsRead(notification.id)}
                       className="px-3 py-1 bg-primary text-white rounded text-sm"
                     >
-                      Mark as Read
+                      تحديد كمقروء
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(notification.id)}
                     className="px-3 py-1 bg-red-500 text-white rounded text-sm"
                   >
-                    Delete
+                    حذف
                   </button>
                 </div>
               </div>

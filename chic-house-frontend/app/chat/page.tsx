@@ -121,24 +121,16 @@ export default function ChatPage() {
   const handleCreateConversation = async () => {
     if (!user?.id) return;
     
-    // للمستخدمين العاديين: يجب أن يكون المستقبل أدمن
+    let receiverIdToUse = "";
+    
+    // للمستخدمين العاديين: إيميل الأدمن ثابت = أول أدمن من القائمة
     if (!isAdmin) {
-      if (!receiverEmail.trim()) {
-        setErrorNewChat("يرجى إدخال إيميل الأدمن");
+      const firstAdmin = adminUsers[0];
+      if (!firstAdmin?.id) {
+        setErrorNewChat("لا يوجد أدمن للتواصل حالياً. جاري التحميل...");
         return;
       }
-      
-      // البحث عن الأدمن بالإيميل
-      const admin = adminUsers.find((a: any) => 
-        a.email?.toLowerCase() === receiverEmail.trim().toLowerCase()
-      );
-      
-      if (!admin) {
-        setErrorNewChat("لم يتم العثور على أدمن بهذا الإيميل");
-        return;
-      }
-      
-      setReceiverId(admin.id);
+      receiverIdToUse = firstAdmin.id;
     } else {
       // للأدمن: يمكنهم إدخال ID أو إيميل
       if (!receiverId.trim() && !receiverEmail.trim()) {
@@ -146,8 +138,9 @@ export default function ChatPage() {
         return;
       }
       
-      // إذا كان الإدخال إيميل، البحث عن المستخدم
-      if (receiverEmail.trim() && !receiverId.trim()) {
+      if (receiverId.trim()) {
+        receiverIdToUse = receiverId.trim();
+      } else if (receiverEmail.trim()) {
         try {
           const allUsersResponse = await accountApi.getAllUsers();
           if (allUsersResponse.data?.data) {
@@ -155,7 +148,7 @@ export default function ChatPage() {
               u.email?.toLowerCase() === receiverEmail.trim().toLowerCase()
             );
             if (foundUser) {
-              setReceiverId(foundUser.id);
+              receiverIdToUse = foundUser.id;
             } else {
               setErrorNewChat("لم يتم العثور على مستخدم بهذا الإيميل");
               return;
@@ -168,8 +161,8 @@ export default function ChatPage() {
       }
     }
     
-    if (!receiverId.trim()) {
-      setErrorNewChat("يرجى إدخال ID المستخدم أو الإيميل");
+    if (!receiverIdToUse) {
+      setErrorNewChat(isAdmin ? "يرجى إدخال ID المستخدم أو الإيميل" : "لا يوجد أدمن للتواصل حالياً");
       return;
     }
     
@@ -178,10 +171,9 @@ export default function ChatPage() {
     try {
       const response = await chatApi.createConversation({
         senderId: user.id,
-        receiverId: receiverId.trim(),
+        receiverId: receiverIdToUse,
       });
       await fetchConversations();
-      // لو الـ API رجع الـ id الجديد، نحاول اختياره
       const newId = response.data?.data?.id;
       if (newId) {
         const newConv = conversations.find((c) => c.id === newId);
@@ -190,7 +182,7 @@ export default function ChatPage() {
       setReceiverId("");
       setReceiverEmail("");
     } catch (error: any) {
-      const msg = error.response?.data?.message || "Cannot start conversation";
+      const msg = error.response?.data?.message || "تعذر بدء المحادثة";
       setErrorNewChat(msg);
       console.error("Error creating conversation:", error);
     } finally {
@@ -213,16 +205,14 @@ export default function ChatPage() {
             <div className="space-y-2">
               {!isAdmin ? (
                 <>
-                  <input
-                    type="email"
-                    placeholder="إيميل الأدمن"
-                    value={receiverEmail}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setReceiverEmail(e.target.value);
-                      setReceiverId("");
-                    }}
-                    className="w-full px-3 py-2 border rounded-lg"
-                  />
+                  <p className="text-sm text-primary font-medium">
+                    تواصل مع الدعم
+                  </p>
+                  {adminUsers[0] && (
+                    <p className="text-xs text-gray-600" title="إيميل الأدمن">
+                      الدعم: {adminUsers[0].email || adminUsers[0].userName || "—"}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-500">
                     يمكنك الشات مع الأدمن فقط
                   </p>
@@ -254,10 +244,10 @@ export default function ChatPage() {
               )}
               <button
                 onClick={handleCreateConversation}
-                disabled={loadingNewChat || loadingAdmins}
+                disabled={loadingNewChat || loadingAdmins || (!isAdmin && adminUsers.length === 0)}
                 className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:opacity-60"
               >
-                {loadingNewChat ? "جاري الإنشاء..." : "بدء محادثة جديدة"}
+                {loadingNewChat ? "جاري الإنشاء..." : loadingAdmins && !isAdmin ? "جاري تحميل الدعم..." : "بدء محادثة جديدة"}
               </button>
             </div>
             {errorNewChat && <p className="text-sm text-red-600">{errorNewChat}</p>}
@@ -300,7 +290,7 @@ export default function ChatPage() {
                   <div className="flex-1">
                     <p className="font-bold">{conv.userName}</p>
                     <p className="text-sm text-gray-500 truncate">
-                      {conv.lastMessage || "No messages"}
+                      {conv.lastMessage || "لا توجد رسائل"}
                     </p>
                   </div>
                 </div>
@@ -333,7 +323,7 @@ export default function ChatPage() {
                     >
                       <p>{msg.content}</p>
                       <p className="text-xs mt-1 opacity-70">
-                        {new Date(msg.sentAt).toLocaleTimeString("en-US")}
+                        {new Date(msg.sentAt).toLocaleTimeString("ar-EG")}
                       </p>
                     </div>
                   </div>

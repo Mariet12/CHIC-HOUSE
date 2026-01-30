@@ -85,10 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
           toast.success("تم تسجيل الدخول بنجاح");
         } else {
-          throw new Error("Token not received");
+          throw new Error("لم يتم استلام رمز الدخول");
         }
       } else {
-        throw new Error(response.data?.message || "Login failed");
+        throw new Error(response.data?.message || "فشل تسجيل الدخول");
       }
     } catch (error: any) {
       let errorMessage = "فشل تسجيل الدخول";

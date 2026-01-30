@@ -27,9 +27,9 @@ export default function Hero() {
             </div>
           ) : (
             <div className="text-center p-8 border-2 border-dashed border-primary rounded-lg">
-              <p className="text-primary-dark mb-2">⚠️ Image not found</p>
+              <p className="text-primary-dark mb-2">⚠️ الصورة غير موجودة</p>
               <p className="text-sm text-primary-light">
-                Place image in:{" "}
+                ضع الصورة في:{" "}
                 <code className="bg-secondary px-2 py-1 rounded">
                   public/logo/chic-house-logo.png
                 </code>

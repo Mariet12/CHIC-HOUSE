@@ -26,7 +26,7 @@ export default function CategoriesSection() {
   }, []);
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-12">Loading...</div>;
+    return <div className="container mx-auto px-4 py-12">جاري التحميل...</div>;
   }
 
   if (categories.length === 0) {

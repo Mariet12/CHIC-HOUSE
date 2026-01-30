@@ -78,10 +78,10 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary-light px-4 py-12">
       <div className="max-w-md w-full bg-secondary-light p-8 rounded-lg shadow-lg border border-secondary-dark">
-        <h1 className="brand-title text-center mb-8">Create Account</h1>
+        <h1 className="brand-title text-center mb-8">إنشاء حساب</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-2">Username</label>
+            <label className="block text-sm font-medium mb-2">اسم المستخدم</label>
             <input
               type="text"
               value={formData.userName}
@@ -91,7 +91,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
+            <label className="block text-sm font-medium mb-2">البريد الإلكتروني</label>
             <input
               type="email"
               value={formData.email}
@@ -101,7 +101,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Password</label>
+            <label className="block text-sm font-medium mb-2">كلمة المرور</label>
             <input
               type="password"
               value={formData.password}
@@ -111,7 +111,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Phone Number</label>
+            <label className="block text-sm font-medium mb-2">رقم الهاتف</label>
             <input
               type="tel"
               value={formData.phoneNumber}
@@ -120,7 +120,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Profile Picture</label>
+            <label className="block text-sm font-medium mb-2">صورة الملف الشخصي <span className="text-gray-500 font-normal">(اختياري)</span></label>
             <input
               type="file"
               accept="image/*"
@@ -133,13 +133,13 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full bg-primary text-white py-3 rounded-lg hover:bg-primary-light transition-smooth disabled:opacity-50"
           >
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading ? "جاري إنشاء الحساب..." : "إنشاء الحساب"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{" "}
+          لديك حساب بالفعل؟{" "}
           <Link href="/login" className="text-primary hover:underline">
-            Login
+            تسجيل الدخول
           </Link>
         </p>
       </div>

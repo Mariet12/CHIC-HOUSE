@@ -30,25 +30,25 @@ export default function CartPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-primary">Shopping Cart</h1>
+        <h1 className="text-3xl font-bold text-primary">سلة التسوق</h1>
         {cartItems.length > 0 && (
           <button
             onClick={clearCart}
             className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
           >
-            Clear Cart
+            إفراغ السلة
           </button>
         )}
       </div>
 
       {cartItems.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-xl text-primary-dark mb-4">Your cart is empty</p>
+          <p className="text-xl text-primary-dark mb-4">سلتك فارغة</p>
           <Link
             href="/products"
             className="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-light shadow-md"
           >
-            Browse Products
+            تصفح المنتجات
           </Link>
         </div>
       ) : (
@@ -71,7 +71,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-lg">{item.productName}</h3>
-                  <p className="text-accent font-bold">${item.unitPrice}</p>
+                  <p className="text-accent font-bold">{item.unitPrice} ج.م</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button

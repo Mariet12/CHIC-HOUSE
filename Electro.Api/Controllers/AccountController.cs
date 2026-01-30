@@ -47,6 +47,35 @@ namespace Electro.Apis.Controllers
             _logger.LogInformation("Registration attempt for email: {Email}, UserName: {UserName}, Role: {Role}", 
                 model?.Email, model?.UserName, model?.Role);
 
+            // Set default Role if not provided
+            if (model != null && string.IsNullOrWhiteSpace(model.Role))
+            {
+                model.Role = "Customer";
+            }
+
+            // Remove Role errors from ModelState since we set a default
+            if (ModelState.ContainsKey("Role"))
+            {
+                ModelState.Remove("Role");
+            }
+
+            // Remove Image errors from ModelState (optional field - صورة اختيارية)
+            foreach (var key in ModelState.Keys.Where(k => k != null && (k.Equals("Image", StringComparison.OrdinalIgnoreCase) || k.EndsWith(".Image", StringComparison.OrdinalIgnoreCase))).ToList())
+            {
+                ModelState.Remove(key);
+            }
+            if (model != null && model.Image == null)
+            {
+                // تأكد أن الصورة اختيارية حتى لو الـ binding أضاف خطأ
+                model.Image = null;
+            }
+
+            // Remove PhoneNumber errors if empty (optional field)
+            if (ModelState.ContainsKey("PhoneNumber") && (model == null || string.IsNullOrWhiteSpace(model.PhoneNumber)))
+            {
+                ModelState.Remove("PhoneNumber");
+            }
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>())
@@ -59,6 +88,22 @@ namespace Electro.Apis.Controllers
             if (model == null)
             {
                 return BadRequest(CreateErrorResponse("Registration data is required"));
+            }
+
+            // Manual validation for required fields
+            if (string.IsNullOrWhiteSpace(model.UserName))
+            {
+                return BadRequest(CreateErrorResponse("UserName is required"));
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+            {
+                return BadRequest(CreateErrorResponse("Email is required"));
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Password))
+            {
+                return BadRequest(CreateErrorResponse("Password is required"));
             }
 
             try
