@@ -1,28 +1,25 @@
 # Script to create admin account
 # Usage: .\create-admin.ps1
+# أو استخدم السيرفر المباشر: .\create-admin.ps1 -UseProduction
 
-# Try localhost first, then production
-$apiUrl = "http://localhost:5008/api/Account/create-admin"
+param([switch]$UseProduction)
 
-# If localhost fails, try production
-if (-not (Test-Path "http://localhost:5008")) {
-    $apiUrl = "https://chic-house.runasp.net/api/Account/create-admin"
-}
+$apiUrl = if ($UseProduction) { "https://chic-house.runasp.net/api/Account/create-admin" } else { "http://localhost:5008/api/Account/create-admin" }
 
-# Admin credentials
+# Admin credentials - غيّرها لو حابب
 $adminData = @{
     email = "admin@chichouse.com"
     password = "Admin@123456"
     userName = "Admin User"
 } | ConvertTo-Json
 
-Write-Host "Creating admin account..." -ForegroundColor Yellow
+Write-Host "Creating admin account at: $apiUrl" -ForegroundColor Yellow
 Write-Host "Email: admin@chichouse.com" -ForegroundColor Cyan
 Write-Host "Password: Admin@123456" -ForegroundColor Cyan
 Write-Host ""
 
 try {
-    $response = Invoke-RestMethod -Uri $apiUrl -Method POST -ContentType "application/json" -Body $adminData
+    $response = Invoke-RestMethod -Uri $apiUrl -Method POST -ContentType "application/json; charset=utf-8" -Body $adminData
     
     Write-Host "✅ Admin account created successfully!" -ForegroundColor Green
     Write-Host ""
@@ -37,8 +34,9 @@ try {
 catch {
     Write-Host "❌ Error creating admin account:" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
-    
-    if ($_.ErrorDetails.Message) {
-        Write-Host "Details: $($_.ErrorDetails.Message)" -ForegroundColor Red
+    if ($_.ErrorDetails.Message) { Write-Host "Details: $($_.ErrorDetails.Message)" -ForegroundColor Red }
+    if (-not $UseProduction) {
+        Write-Host ""
+        Write-Host "لو الـ API شغال على السيرفر، جرّب: .\create-admin.ps1 -UseProduction" -ForegroundColor Yellow
     }
 }

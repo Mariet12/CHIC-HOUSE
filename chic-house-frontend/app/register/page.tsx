@@ -120,7 +120,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">صورة الملف الشخصي <span className="text-gray-500 font-normal">(اختياري)</span></label>
+            <label className="block text-sm font-medium mb-2">صورة الملف الشخصي</label>
             <input
               type="file"
               accept="image/*"

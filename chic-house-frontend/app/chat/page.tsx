@@ -52,11 +52,9 @@ export default function ChatPage() {
       if (response.data?.data) {
         let filteredConversations = response.data.data;
         
-        // للمستخدمين العاديين: عرض فقط المحادثات مع الأدمن
         if (!isAdmin && (adminUsersList || adminUsers).length > 0) {
           const adminsToCheck = adminUsersList || adminUsers;
           filteredConversations = filteredConversations.filter((conv: any) => {
-            // التحقق إذا كان الطرف الآخر هو أدمن
             const otherUserId = conv.senderId === user?.id ? conv.receiverId : conv.senderId;
             return adminsToCheck.some((admin: any) => admin.id === otherUserId);
           });
@@ -66,6 +64,8 @@ export default function ChatPage() {
       }
     } catch (error) {
       console.error("Error fetching conversations:", error);
+      setConversations([]);
+      toast.error("تعذر تحميل المحادثات. يمكنك بدء محادثة جديدة.");
     }
   };
 
@@ -208,11 +208,15 @@ export default function ChatPage() {
                   <p className="text-sm text-primary font-medium">
                     تواصل مع الدعم
                   </p>
-                  {adminUsers[0] && (
+                  {!loadingAdmins && adminUsers.length === 0 ? (
+                    <p className="text-xs text-amber-600 font-medium">
+                      لا يوجد حساب دعم (أدمن) حتى الآن. أضف مستخدماً بدور أدمن من لوحة التحكم.
+                    </p>
+                  ) : adminUsers[0] ? (
                     <p className="text-xs text-gray-600" title="إيميل الأدمن">
                       الدعم: {adminUsers[0].email || adminUsers[0].userName || "—"}
                     </p>
-                  )}
+                  ) : null}
                   <p className="text-xs text-gray-500">
                     يمكنك الشات مع الأدمن فقط
                   </p>
@@ -247,7 +251,7 @@ export default function ChatPage() {
                 disabled={loadingNewChat || loadingAdmins || (!isAdmin && adminUsers.length === 0)}
                 className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light disabled:opacity-60"
               >
-                {loadingNewChat ? "جاري الإنشاء..." : loadingAdmins && !isAdmin ? "جاري تحميل الدعم..." : "بدء محادثة جديدة"}
+                {loadingNewChat ? "جاري الإنشاء..." : loadingAdmins && !isAdmin ? "جاري تحميل الدعم..." : !isAdmin && adminUsers.length === 0 ? "غير متاح — لا يوجد أدمن" : "بدء محادثة جديدة"}
               </button>
             </div>
             {errorNewChat && <p className="text-sm text-red-600">{errorNewChat}</p>}

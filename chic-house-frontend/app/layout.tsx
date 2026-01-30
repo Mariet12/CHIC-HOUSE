@@ -25,10 +25,11 @@ const bubble = Bubblegum_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://chic-house-three.vercel.app"
+  ),
   title: "Chic House - هدايا وديكور منزلي",
   description: "متجر Chic House للهدايا اليدوية وديكورات المنزل والمناسبات",
-  // Next.js 13+ automatically detects icon.png and apple-icon.png in app folder
-  // No need to specify in metadata if files exist in app folder
   openGraph: {
     title: "Chic House - هدايا وديكور منزلي",
     description: "متجر Chic House للهدايا اليدوية وديكورات المنزل والمناسبات",

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -33,6 +34,7 @@ namespace Electro.Service
         private readonly ILogger<AccountService> _logger;
         private readonly IFileService _fileService;
         private readonly AppIdentityDbContext _context;
+        private readonly string? _adminEmail;
 
         public AccountService(
             UserManager<AppUser> userManager,
@@ -44,7 +46,9 @@ namespace Electro.Service
             SignInManager<AppUser> signInManager,
             IHttpContextAccessor httpContextAccessor,
             ILogger<AccountService> logger,
-            IFileService fileService,AppIdentityDbContext context)
+            IFileService fileService,
+            AppIdentityDbContext context,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -53,16 +57,17 @@ namespace Electro.Service
             _otpService = otpService;
             _context = context;
             _cache = cache;
-            //_signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _fileService = fileService;
+            _adminEmail = configuration["AdminEmail"]?.Trim();
         }
 
         public async Task<ApiResponse> RegisterAsync(Register dto)
         {
-            // Validate Role - use "Customer" as default to match frontend
             var role = string.IsNullOrWhiteSpace(dto.Role) ? "Customer" : dto.Role;
+            if (!string.IsNullOrEmpty(_adminEmail) && string.Equals(dto.Email?.Trim(), _adminEmail, StringComparison.OrdinalIgnoreCase))
+                role = "Admin";
             
             // Check if role exists in database, create if not
             var roleExists = await _context.Roles.AnyAsync(r => r.Name == role);
@@ -156,6 +161,23 @@ namespace Electro.Service
             if (!string.IsNullOrEmpty(dto.FcmToken))
             {
                 await _userManager.UpdateAsync(user);
+            }
+
+            // لو الإيميل هو إيميل الأدمن المضبوط، تأكد أن المستخدم أدمن (أول من يدخل به يصبح أدمن)
+            if (!string.IsNullOrEmpty(_adminEmail) && string.Equals(user.Email?.Trim(), _adminEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                if (user.Role != "Admin")
+                {
+                    user.Role = "Admin";
+                    await _userManager.UpdateAsync(user);
+                    var adminRoleExists = await _context.Roles.AnyAsync(r => r.Name == "Admin");
+                    if (!adminRoleExists)
+                    {
+                        await _context.Roles.AddAsync(new Microsoft.AspNetCore.Identity.IdentityRole { Name = "Admin", NormalizedName = "ADMIN" });
+                        await _context.SaveChangesAsync();
+                    }
+                    await _userManager.AddToRoleAsync(user, "Admin");
+                }
             }
 
             var token = await _tokenService.CreateTokenAsync(user);

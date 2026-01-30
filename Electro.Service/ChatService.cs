@@ -1,4 +1,4 @@
-﻿using Electro.Core.Dtos.Chat;
+using Electro.Core.Dtos.Chat;
 using Electro.Core.Entities.Chat;
 using Electro.Core.Interface;
 using Electro.Core.Interfaces;
@@ -80,20 +80,22 @@ namespace Electro.services
                 .Include(c => c.Receiver)
                 .ToListAsync();
 
-            // تحويل المحادثات إلى DTO حسب ما إذا كنت أرسلت الرسالة أم استلمتها
-            return conversations.Select(c => new ConversationDTO
+            // تحويل المحادثات إلى DTO (معالجة Messages إذا كانت null)
+            return conversations.Select(c =>
             {
-                Id = c.Id,
-                SenderId = c.SenderId,
-                ReceiverId = c.ReceiverId,
-                // استخدام دالة GetFormattedUserName لتنسيق الاسم
-                UserName = c.SenderId == userId ? c.Receiver?.UserName ?? "Unknown" : c.Sender?.UserName ?? "Unknown",
-                UserImage = c.SenderId == userId ? c.Receiver?.Image : c.Sender?.Image,
-                LastMessageContent = c.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault()?.Content,
-                LastMessageTimestamp = c.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault()?.SentAt,
-                UnreadMessagesCount = c.Messages.Count(m => m.ReceiverId == userId && !m.IsRead),
-
-
+                var msgs = c.Messages ?? Enumerable.Empty<Message>();
+                var lastMsg = msgs.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                return new ConversationDTO
+                {
+                    Id = c.Id,
+                    SenderId = c.SenderId,
+                    ReceiverId = c.ReceiverId,
+                    UserName = c.SenderId == userId ? c.Receiver?.UserName ?? "Unknown" : c.Sender?.UserName ?? "Unknown",
+                    UserImage = c.SenderId == userId ? c.Receiver?.Image : c.Sender?.Image,
+                    LastMessageContent = lastMsg?.Content,
+                    LastMessageTimestamp = lastMsg?.SentAt,
+                    UnreadMessagesCount = msgs.Count(m => m.ReceiverId == userId && !m.IsRead),
+                };
             }).ToList();
         }
       
@@ -124,19 +126,21 @@ namespace Electro.services
 
             var conversations = await conversationsQuery.ToListAsync();
 
-            // تحويل المحادثات إلى DTO
-            return conversations.Select(c => new ConversationDTO
+            // تحويل المحادثات إلى DTO (معالجة Messages إذا كانت null)
+            return conversations.Select(c =>
             {
-                Id = c.Id,
-                SenderId = c.SenderId,
-                ReceiverId = c.ReceiverId,
-                // استخدام دالة GetFormattedUserName لتنسيق الأسماء
-                UserName = c.SenderId == userId ? c.Receiver?.UserName ?? "Unknown": c.Sender?.UserName ?? "Unknown",
-                // تحديد الصورة بناءً على المرسل أو المستقبل
-                UserImage = c.SenderId == userId ? c.Receiver?.Image : c.Sender?.Image,
-                // استرجاع آخر رسالة من المحادثة
-                LastMessageContent = c.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault()?.Content,
-                LastMessageTimestamp = c.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault()?.SentAt
+                var msgs = c.Messages ?? Enumerable.Empty<Message>();
+                var lastMsg = msgs.OrderByDescending(m => m.SentAt).FirstOrDefault();
+                return new ConversationDTO
+                {
+                    Id = c.Id,
+                    SenderId = c.SenderId,
+                    ReceiverId = c.ReceiverId,
+                    UserName = c.SenderId == userId ? c.Receiver?.UserName ?? "Unknown" : c.Sender?.UserName ?? "Unknown",
+                    UserImage = c.SenderId == userId ? c.Receiver?.Image : c.Sender?.Image,
+                    LastMessageContent = lastMsg?.Content,
+                    LastMessageTimestamp = lastMsg?.SentAt
+                };
             }).ToList();
         }
      
@@ -268,7 +272,7 @@ namespace Electro.services
                 // 🔹 قطع الاتصال
                 await client.DisconnectAsync(true, Cancellation);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

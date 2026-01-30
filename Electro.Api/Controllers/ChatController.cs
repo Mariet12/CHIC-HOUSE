@@ -1,4 +1,4 @@
-﻿
+
 using Electro.Core.Dtos.Chat;
 using Electro.Core.Entities.Chat;
 using Electro.Core.Interfaces;
@@ -38,9 +38,10 @@ namespace Electro.Apis.Controllers
             {
                 var conversation = await _chatService.CreateOrGetConversationAsync(dto.SenderId, dto.ReceiverId);
 
-                // الحصول على بيانات المرسل والمستقبل
                 var sender = await _userManager.Users.FirstOrDefaultAsync(d => d.Id == dto.SenderId);
                 var recipient = await _userManager.Users.FirstOrDefaultAsync(d => d.Id == dto.ReceiverId);
+                if (sender == null || recipient == null)
+                    return BadRequest(new { message = "Invalid sender or recipient." });
 
                 return Ok(new
                 {
@@ -53,7 +54,6 @@ namespace Electro.Apis.Controllers
                         ReceiverId = recipient.Id,
                         UserName = recipient.UserName,
                         UserImage = recipient.Image ?? "default_image_url"
-
                     }
                 });
             }
@@ -249,7 +249,7 @@ namespace Electro.Apis.Controllers
         public class MarkMessagesReadRequest
         {
             public int ConversationId { get; set; }
-            public string UserId { get; set; }
+            public string UserId { get; set; } = string.Empty;
         }
 
 
@@ -298,10 +298,10 @@ namespace Electro.Apis.Controllers
         // تعديل كلاس ChatMessageDto ليشمل ConversationId
         public class ChatMessageDto
         {
-            public int ConversationId { get; set; }  // معرف المحادثة
-            public string SenderId { get; set; }
-            public string ReceiverId { get; set; }
-            public string Message { get; set; }
+            public int ConversationId { get; set; }
+            public string SenderId { get; set; } = string.Empty;
+            public string ReceiverId { get; set; } = string.Empty;
+            public string Message { get; set; } = string.Empty;
         }
 
     }

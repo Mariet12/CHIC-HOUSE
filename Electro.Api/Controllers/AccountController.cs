@@ -120,6 +120,32 @@ namespace Electro.Apis.Controllers
             }
         }
 
+        /// <summary>
+        /// إنشاء حساب أدمن (للاستخدام الأول أو السكربتات). لا يتطلب تسجيل دخول.
+        /// </summary>
+        [HttpPost("create-admin")]
+        public async Task<IActionResult> CreateAdmin([FromBody] CreateAdminRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password) || string.IsNullOrWhiteSpace(request.UserName))
+            {
+                return BadRequest(CreateErrorResponse("Email, UserName and Password are required."));
+            }
+            if (request.Password.Length < 6)
+            {
+                return BadRequest(CreateErrorResponse("Password must be at least 6 characters."));
+            }
+            try
+            {
+                var result = await _accountService.CreateAdminAsync(request.Email.Trim(), request.Password, request.UserName.Trim());
+                return StatusCode(result.StatusCode, CreateResponse(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CreateAdmin failed for email: {Email}", request.Email);
+                return StatusCode(500, CreateErrorResponse("Failed to create admin."));
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login dto)
         {
@@ -354,5 +380,12 @@ namespace Electro.Apis.Controllers
         [Required]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
+    }
+
+    public class CreateAdminRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
     }
 }
