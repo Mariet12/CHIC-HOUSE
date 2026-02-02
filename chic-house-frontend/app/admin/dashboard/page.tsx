@@ -33,19 +33,33 @@ export default function AdminDashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setError(null);
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/dashboard/page.tsx:fetchDashboardData',message:'dashboard fetch start',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+      // #endregion
       const [summaryRes, ordersRes] = await Promise.all([
         adminDashboardApi.getSummary(),
         adminDashboardApi.getRecentOrders(5),
       ]);
 
-      if (summaryRes.data?.data) {
-        setSummary(summaryRes.data.data);
+      const rawSummary = summaryRes.data?.data;
+      const rawOrders = ordersRes.data?.data;
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/dashboard/page.tsx:fetchDashboardData',message:'dashboard API response',data:{summaryKeys:rawSummary?Object.keys(rawSummary):[],totalOrders:rawSummary?.totalOrders??rawSummary?.TotalOrders,totalProducts:rawSummary?.totalProducts??rawSummary?.TotalProducts,recentOrdersLength:Array.isArray(rawOrders)?rawOrders.length:typeof rawOrders},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+      // #endregion
+
+      if (rawSummary) {
+        setSummary(rawSummary);
       }
-      if (ordersRes.data?.data) {
-        setRecentOrders(ordersRes.data.data);
+      if (rawOrders && Array.isArray(rawOrders)) {
+        setRecentOrders(rawOrders);
       }
     } catch (error: any) {
-      console.error("Error fetching dashboard data:", error);
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/dashboard/page.tsx:fetchDashboardData',message:'dashboard fetch error',data:{msg:error?.message,status:error?.response?.status},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
+      // #endregion
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error fetching dashboard data:", error);
+      }
       setError(error.response?.data?.message || error.message || "تعذر تحميل بيانات لوحة التحكم");
     } finally {
       setLoading(false);
@@ -71,14 +85,14 @@ export default function AdminDashboardPage() {
     <div className="container mx-auto px-4 py-8 text-right">
       <h1 className="text-3xl font-bold mb-8 text-primary">لوحة التحكم</h1>
 
-      {/* Summary Cards — دعم أسماء الباكند الجديدة والقديمة */}
+      {/* Summary Cards — دعم أسماء الباكند camelCase و PascalCase */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
             <div>
               <p className="text-primary-dark mb-1">إجمالي المبيعات</p>
               <p className="text-3xl font-bold text-primary">
-                {(summary.totalSales ?? summary.paidAmount ?? summary.completedSales ?? 0)} ج.م
+                {(summary.totalSales ?? summary.TotalSales ?? summary.paidAmount ?? summary.PaidAmount ?? summary.completedSales ?? summary.CompletedSales ?? 0)} ج.م
               </p>
             </div>
             <div className="text-[#a855f7] bg-[#f5eaff] p-3 rounded-xl">
@@ -89,7 +103,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="text-primary-dark mb-1">إجمالي المستخدمين</p>
               <p className="text-3xl font-bold text-primary">
-                {summary.totalCustomers ?? summary.customersCount ?? 0}
+                {summary.totalCustomers ?? summary.TotalCustomers ?? summary.customersCount ?? summary.CustomersCount ?? 0}
               </p>
             </div>
             <div className="text-[#2563eb] bg-[#e3edff] p-3 rounded-xl">
@@ -100,7 +114,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="text-primary-dark mb-1">إجمالي المنتجات</p>
               <p className="text-3xl font-bold text-primary">
-                {summary.totalProducts ?? 0}
+                {summary.totalProducts ?? summary.TotalProducts ?? 0}
               </p>
             </div>
             <div className="text-[#22c55e] bg-[#e6f7ed] p-3 rounded-xl">
@@ -111,7 +125,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="text-primary-dark mb-1">إجمالي الطلبات</p>
               <p className="text-3xl font-bold text-primary">
-                {summary.totalOrders ?? summary.ordersCount ?? 0}
+                {summary.totalOrders ?? summary.TotalOrders ?? summary.ordersCount ?? summary.OrdersCount ?? 0}
               </p>
             </div>
             <div className="text-[#3b82f6] bg-[#e5f0ff] p-3 rounded-xl">
@@ -121,48 +135,48 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Link href="/admin/categories" className="block hover:-translate-y-1 transition-transform duration-200">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
-            <div>
+      {/* Quick Actions — نفس الارتفاع لجميع البطاقات */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 items-stretch">
+        <Link href="/admin/categories" className="block hover:-translate-y-1 transition-transform duration-200 h-full">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between min-h-[120px] h-full">
+            <div className="min-w-0 flex-1">
               <h3 className="text-xl font-bold text-primary mb-2">إدارة الأقسام</h3>
               <p className="text-gray-600">إضافة وتعديل الأقسام</p>
             </div>
-            <div className="text-[#2563eb] bg-[#e3edff] p-3 rounded-xl">
+            <div className="text-[#2563eb] bg-[#e3edff] p-3 rounded-xl flex-shrink-0">
               <ClipboardList className="w-8 h-8" />
             </div>
           </div>
         </Link>
-        <Link href="/admin/products" className="block hover:-translate-y-1 transition-transform duration-200">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
-            <div>
+        <Link href="/admin/products" className="block hover:-translate-y-1 transition-transform duration-200 h-full">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between min-h-[120px] h-full">
+            <div className="min-w-0 flex-1">
               <h3 className="text-xl font-bold text-primary mb-2">إدارة المنتجات</h3>
               <p className="text-gray-600">إضافة وتعديل المنتجات</p>
             </div>
-            <div className="text-[#22c55e] bg-[#e6f7ed] p-3 rounded-xl">
+            <div className="text-[#22c55e] bg-[#e6f7ed] p-3 rounded-xl flex-shrink-0">
               <Package className="w-8 h-8" />
             </div>
           </div>
         </Link>
-        <Link href="/orders" className="block hover:-translate-y-1 transition-transform duration-200">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
-            <div>
+        <Link href="/admin/orders" className="block hover:-translate-y-1 transition-transform duration-200 h-full">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between min-h-[120px] h-full">
+            <div className="min-w-0 flex-1">
               <h3 className="text-xl font-bold text-primary mb-2">إدارة الطلبات</h3>
               <p className="text-gray-600">عرض وتحديث الطلبات</p>
             </div>
-            <div className="text-[#3b82f6] bg-[#e5f0ff] p-3 rounded-xl">
+            <div className="text-[#3b82f6] bg-[#e5f0ff] p-3 rounded-xl flex-shrink-0">
               <Truck className="w-8 h-8" />
             </div>
           </div>
         </Link>
-        <Link href="/admin/users/add" className="block hover:-translate-y-1 transition-transform duration-200">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
-            <div>
+        <Link href="/admin/users/add" className="block hover:-translate-y-1 transition-transform duration-200 h-full">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between min-h-[120px] h-full">
+            <div className="min-w-0 flex-1">
               <h3 className="text-xl font-bold text-primary mb-2">إضافة أدمن</h3>
               <p className="text-gray-600">إضافة مستخدم جديد كأدمن</p>
             </div>
-            <div className="text-[#f59e0b] bg-[#fef3c7] p-3 rounded-xl">
+            <div className="text-[#f59e0b] bg-[#fef3c7] p-3 rounded-xl flex-shrink-0">
               <Users className="w-8 h-8" />
             </div>
           </div>

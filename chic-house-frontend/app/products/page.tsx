@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { productsApi, categoriesApi } from "@/lib/api";
 import ProductCard from "@/components/products/ProductCard";
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [filters, setFilters] = useState({
@@ -15,6 +17,14 @@ export default function ProductsPage() {
     sortBy: "new",
   });
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const catId = searchParams.get("categoryId");
+    if (catId) {
+      const id = Number(catId);
+      if (!Number.isNaN(id)) setFilters((f) => ({ ...f, categoryId: id }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchCategories();
