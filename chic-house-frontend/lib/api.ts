@@ -155,6 +155,8 @@ export const accountApi = {
   deleteUserImage: () => apiClient.delete("/Account/delete-image"),
   softDeleteUser: () => apiClient.post("/Account/delete"),
   getAllUsers: () => apiClient.get("/Account/all-users"),
+  upgradeToAdmin: (email: string) =>
+    apiClient.post("/Account/upgrade-to-admin", { email }),
 };
 
 // ========== Favorites API ==========

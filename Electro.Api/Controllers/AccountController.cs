@@ -146,6 +146,29 @@ namespace Electro.Apis.Controllers
             }
         }
 
+        /// <summary>
+        /// تحويل مستخدم موجود (كيزر) إلى أدمن بالإيميل. للأدمن فقط.
+        /// </summary>
+        [HttpPost("upgrade-to-admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpgradeToAdmin([FromBody] UpgradeToAdminRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Email))
+            {
+                return BadRequest(CreateErrorResponse("Email is required."));
+            }
+            try
+            {
+                var result = await _accountService.UpgradeUserToAdminAsync(request.Email.Trim());
+                return StatusCode(result.StatusCode, CreateResponse(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpgradeToAdmin failed for email: {Email}", request.Email);
+                return StatusCode(500, CreateErrorResponse("Failed to upgrade user to admin."));
+            }
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login dto)
         {
@@ -387,5 +410,10 @@ namespace Electro.Apis.Controllers
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
+    }
+
+    public class UpgradeToAdminRequest
+    {
+        public string Email { get; set; } = string.Empty;
     }
 }

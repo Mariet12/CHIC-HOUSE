@@ -824,6 +824,35 @@ namespace Electro.Service
             };
         }
 
+        public async Task<ApiResponse> UpgradeUserToAdminAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return new ApiResponse(400, "Email is required.");
+
+            var user = await _userManager.FindByEmailAsync(email.Trim());
+            if (user == null)
+                return new ApiResponse(404, "User with this email was not found.");
+
+            if (user.Role == "Admin")
+                return new ApiResponse(200, "User is already an admin.");
+
+            var adminRoleExists = await _context.Roles.AnyAsync(r => r.Name == "Admin");
+            if (!adminRoleExists)
+            {
+                await _context.Roles.AddAsync(new Microsoft.AspNetCore.Identity.IdentityRole { Name = "Admin", NormalizedName = "ADMIN" });
+                await _context.SaveChangesAsync();
+            }
+
+            user.Role = "Admin";
+            await _userManager.UpdateAsync(user);
+            await _userManager.AddToRoleAsync(user, "Admin");
+
+            return new ApiResponse(200, "User has been upgraded to admin successfully")
+            {
+                Data = new { Id = user.Id, Email = user.Email, UserName = user.UserName, Role = user.Role }
+            };
+        }
+
         public async Task<ApiResponse> ActivateAllUsersAsync()
         {
             try

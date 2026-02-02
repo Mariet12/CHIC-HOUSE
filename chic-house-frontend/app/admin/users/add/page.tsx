@@ -34,21 +34,36 @@ export default function AddAdminUserPage() {
       formDataToSend.append("email", formData.email);
       formDataToSend.append("password", formData.password);
       formDataToSend.append("phoneNumber", formData.phoneNumber || "");
-      formDataToSend.append("role", "Admin"); // إضافة المستخدم كأدمن
-      
+      formDataToSend.append("role", "Admin");
+
       if (image) {
         formDataToSend.append("image", image);
       }
 
       const response = await accountApi.register(formDataToSend);
-      
+
       if (response.data?.statusCode === 200) {
         toast.success("تم إضافة المستخدم كأدمن بنجاح");
         router.push("/admin/dashboard");
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || "فشل إضافة المستخدم";
-      toast.error(errorMessage);
+      const msg = (error.response?.data?.message || error.message || "").toString().toLowerCase();
+      if (error.response?.status === 400 && (msg.includes("already exists") || msg.includes("موجود") || msg.includes("exist"))) {
+        try {
+          const upgradeRes = await accountApi.upgradeToAdmin(formData.email);
+          if (upgradeRes.data?.statusCode === 200) {
+            toast.success("المستخدم مسجّل بالفعل. تم تحويله إلى أدمن بنجاح");
+            router.push("/admin/dashboard");
+            return;
+          }
+        } catch (upgradeErr: any) {
+          const upgradeMsg = upgradeErr.response?.data?.message || upgradeErr.message || "فشل تحويل المستخدم لأدمن";
+          toast.error(upgradeMsg);
+        }
+      } else {
+        const errorMessage = error.response?.data?.message || error.message || "فشل إضافة المستخدم";
+        toast.error(errorMessage);
+      }
       console.error("Error adding admin user:", error);
     } finally {
       setLoading(false);
