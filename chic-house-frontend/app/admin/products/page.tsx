@@ -136,7 +136,6 @@ export default function AdminProductsPage() {
         Array.from(form.images).forEach((file) => fd.append("Images", file));
       }
 
-      // debug: اطبع البيانات في الـ console
       if (form.id) {
         await productsApi.update(form.id, fd);
         toast.success("تم تحديث المنتج");
