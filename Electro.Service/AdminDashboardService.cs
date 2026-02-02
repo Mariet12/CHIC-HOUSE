@@ -1,4 +1,4 @@
-﻿using Electro.Core.Dtos.AdminDashboard;
+using Electro.Core.Dtos.AdminDashboard;
 using Electro.Core.Dtos.Checkout;
 using Electro.Core.Interface;
 using Electro.Core.Models;
@@ -22,33 +22,38 @@ namespace Electro.Service
             return (from, to);
         }
 
-        // خليها تقبل Nullable وتطبّق Normalize
+        // البطاقات العلوية: إجماليات كل الوقت (بدون فلتر تاريخ) لتعكس الأرقام الفعلية
         public async Task<SummaryCardDto> GetSummaryAsync(DateTime? fromUtc, DateTime? toUtc)
         {
             var (from, to) = Normalize(fromUtc, toUtc);
-
             var ordersInRange = _ctx.Orders.AsNoTracking()
                 .Where(o => o.CreatedAt >= from && o.CreatedAt <= to);
 
             var paidAmount = await ordersInRange
                 .Where(o => o.PaymentStatus)
                 .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-
             var completedAmount = await ordersInRange
                 .Where(o => o.Status == OrderStatus.Completed)
                 .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-
             var ordersCount = await ordersInRange.CountAsync();
 
-            // إجمالي العملاء (أو لو حابب داخل الفترة، غيّر الاستعلام)
-            var customersCount = await _ctx.Users.CountAsync();
+            // إجماليات كل الوقت للبطاقات العلوية (إجمالي المبيعات، الطلبات، العملاء، المنتجات)
+            var allOrders = _ctx.Orders.AsNoTracking();
+            var totalSales = await allOrders.SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+            var totalOrders = await allOrders.CountAsync();
+            var totalCustomers = await _ctx.Users.CountAsync();
+            var totalProducts = await _ctx.Products.CountAsync();
 
             return new SummaryCardDto
             {
                 PaidAmount = paidAmount,
                 CompletedSales = completedAmount,
                 OrdersCount = ordersCount,
-                CustomersCount = customersCount
+                CustomersCount = totalCustomers,
+                TotalSales = totalSales,
+                TotalOrders = totalOrders,
+                TotalCustomers = totalCustomers,
+                TotalProducts = totalProducts
             };
         }
 

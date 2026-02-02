@@ -1,4 +1,4 @@
-﻿using Electro.Core.Dtos.Checkout;
+using Electro.Core.Dtos.Checkout;
 using Electro.Core.Models;
 
 namespace Electro.Core.Dtos.AdminDashboard
@@ -11,10 +11,18 @@ namespace Electro.Core.Dtos.AdminDashboard
 
     public sealed class SummaryCardDto
     {
-        public decimal PaidAmount { get; set; }          // إجمالي المدفوع (PaymentStatus=true)
-        public decimal CompletedSales { get; set; }      // إجمالي الطلبات المكتملة
-        public int OrdersCount { get; set; }             // عدد الطلبات في الفترة
-        public int CustomersCount { get; set; }          // إجمالي العملاء
+        public decimal PaidAmount { get; set; }
+        public decimal CompletedSales { get; set; }
+        public int OrdersCount { get; set; }
+        public int CustomersCount { get; set; }
+        /// <summary>إجمالي المبيعات (كل الطلبات) للعرض في البطاقات</summary>
+        public decimal TotalSales { get; set; }
+        /// <summary>إجمالي الطلبات للعرض في البطاقات</summary>
+        public int TotalOrders { get; set; }
+        /// <summary>إجمالي العملاء للعرض في البطاقات</summary>
+        public int TotalCustomers { get; set; }
+        /// <summary>إجمالي المنتجات للعرض في البطاقات</summary>
+        public int TotalProducts { get; set; }
     }
 
     public class RecentOrderRowDto
