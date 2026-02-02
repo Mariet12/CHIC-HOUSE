@@ -20,10 +20,10 @@ export default function AddAdminUserPage() {
   const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
-    if (!token || user?.role !== "Admin") {
+    if (!token) {
       router.push("/login");
     }
-  }, [token, user, router]);
+  }, [token, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
