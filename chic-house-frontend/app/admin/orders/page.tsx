@@ -29,25 +29,16 @@ export default function AdminOrdersPage() {
     try {
       setError(null);
       setLoading(true);
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/orders/page.tsx:fetchOrders',message:'admin orders fetch start',data:{pageNumber,pageSize},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-      // #endregion
       const res = await adminDashboardApi.getOrdersPage({
         pageNumber,
         pageSize,
       });
       const data = res.data?.data;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/orders/page.tsx:fetchOrders',message:'admin orders API response',data:{hasData:!!data,dataKeys:data?Object.keys(data):[],itemsLength:data?.items?.length,totalCount:data?.totalCount},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-      // #endregion
       if (data?.items) {
         setOrders(data.items);
         setTotalCount(data.totalCount ?? 0);
       }
     } catch (err: any) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/orders/page.tsx:fetchOrders',message:'admin orders fetch error',data:{msg:err?.message,status:err?.response?.status},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
-      // #endregion
       setError(err.response?.data?.message || err.message || "تعذر تحميل الطلبات");
       setOrders([]);
     } finally {

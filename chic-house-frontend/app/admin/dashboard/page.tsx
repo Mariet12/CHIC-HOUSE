@@ -33,9 +33,6 @@ export default function AdminDashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setError(null);
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/dashboard/page.tsx:fetchDashboardData',message:'dashboard fetch start',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-      // #endregion
       const [summaryRes, ordersRes] = await Promise.all([
         adminDashboardApi.getSummary(),
         adminDashboardApi.getRecentOrders(5),
@@ -43,9 +40,6 @@ export default function AdminDashboardPage() {
 
       const rawSummary = summaryRes.data?.data;
       const rawOrders = ordersRes.data?.data;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/dashboard/page.tsx:fetchDashboardData',message:'dashboard API response',data:{summaryKeys:rawSummary?Object.keys(rawSummary):[],totalOrders:rawSummary?.totalOrders??rawSummary?.TotalOrders,totalProducts:rawSummary?.totalProducts??rawSummary?.TotalProducts,recentOrdersLength:Array.isArray(rawOrders)?rawOrders.length:typeof rawOrders},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-      // #endregion
 
       if (rawSummary) {
         setSummary(rawSummary);
@@ -54,9 +48,6 @@ export default function AdminDashboardPage() {
         setRecentOrders(rawOrders);
       }
     } catch (error: any) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/3ec3ca31-27cf-4cff-9f60-e9391fa1804b',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'admin/dashboard/page.tsx:fetchDashboardData',message:'dashboard fetch error',data:{msg:error?.message,status:error?.response?.status},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
-      // #endregion
       if (process.env.NODE_ENV === "development") {
         console.error("Error fetching dashboard data:", error);
       }
