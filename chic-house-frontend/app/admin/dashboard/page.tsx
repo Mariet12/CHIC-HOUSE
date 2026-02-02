@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
             <div>
               <p className="text-primary-dark mb-1">إجمالي المنتجات</p>
               <p className="text-3xl font-bold text-primary">
-                {summary.totalProducts ?? summary.TotalProducts ?? 0}
+                {summary.totalProducts ?? summary.TotalProducts ?? summary.productsCount ?? summary.ProductsCount ?? 0}
               </p>
             </div>
             <div className="text-[#22c55e] bg-[#e6f7ed] p-3 rounded-xl">

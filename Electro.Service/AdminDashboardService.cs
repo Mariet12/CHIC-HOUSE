@@ -188,7 +188,18 @@ namespace Electro.Service
         public async Task<PagedResult<RecentOrderRowDto>> GetOrdersPageAsync(
        DateTime? fromUtc, DateTime? toUtc, int pageNumber, int pageSize)
         {
-            var (fromDate, toDate) = Normalize(fromUtc, toUtc);
+            // عند عدم تحديد تاريخ: عرض كل الطلبات (آخر سنتين) بدل آخر 30 يوم فقط
+            DateTime fromDate;
+            DateTime toDate;
+            if (fromUtc == null && toUtc == null)
+            {
+                toDate = DateTime.UtcNow.Date.AddDays(1).AddTicks(-1);
+                fromDate = DateTime.UtcNow.AddYears(-2).Date;
+            }
+            else
+            {
+                (fromDate, toDate) = Normalize(fromUtc, toUtc);
+            }
 
             var baseQ = _ctx.Orders
                 .AsNoTracking()
