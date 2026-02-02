@@ -132,7 +132,8 @@ export default function Header() {
                       }}
                     >
                       <div className="py-2" style={{ overflow: 'visible' }}>
-                        {(user?.role?.toLowerCase() === "admin") && (
+                        {/* مؤقتاً: أي مستخدم مسجّل يدخل لوحة التحكم. للإرجاع لأدمن فقط: (user?.role?.toLowerCase() === "admin") && */}
+                        {user && (
                           <>
                             <Link 
                               href="/admin/dashboard"
@@ -140,7 +141,7 @@ export default function Header() {
                               onClick={() => setIsMenuOpen(false)}
                               style={{ overflow: 'visible', textOverflow: 'clip' }}
                             >
-                              لوحة تحكم الأدمن
+                              لوحة التحكم
                             </Link>
                             <div className="border-t border-secondary-dark my-1"></div>
                           </>

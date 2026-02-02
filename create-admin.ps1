@@ -1,21 +1,27 @@
 # Script to create admin account
 # Usage: .\create-admin.ps1
-# أو استخدم السيرفر المباشر: .\create-admin.ps1 -UseProduction
+# أو مع إيميل جديد: .\create-admin.ps1 -Email "your@email.com" -Password "YourPass123" -UserName "Your Name"
+# أو السيرفر المباشر: .\create-admin.ps1 -UseProduction
 
-param([switch]$UseProduction)
+param(
+    [switch]$UseProduction,
+    [string]$Email = "admin@chichouse.com",
+    [string]$Password = "Admin@123456",
+    [string]$UserName = "Admin User"
+)
 
 $apiUrl = if ($UseProduction) { "https://chic-house.runasp.net/api/Account/create-admin" } else { "http://localhost:5008/api/Account/create-admin" }
 
-# Admin credentials - غيّرها لو حابب
+# Admin credentials - أو استخدم المعاملات من سطر الأوامر
 $adminData = @{
-    email = "admin@chichouse.com"
-    password = "Admin@123456"
-    userName = "Admin User"
+    email = $Email
+    password = $Password
+    userName = $UserName
 } | ConvertTo-Json
 
 Write-Host "Creating admin account at: $apiUrl" -ForegroundColor Yellow
-Write-Host "Email: admin@chichouse.com" -ForegroundColor Cyan
-Write-Host "Password: Admin@123456" -ForegroundColor Cyan
+Write-Host "Email: $Email" -ForegroundColor Cyan
+Write-Host "Password: $Password" -ForegroundColor Cyan
 Write-Host ""
 
 try {
@@ -28,8 +34,8 @@ try {
     
     Write-Host ""
     Write-Host "You can now login with:" -ForegroundColor Green
-    Write-Host "Email: admin@chichouse.com" -ForegroundColor White
-    Write-Host "Password: Admin@123456" -ForegroundColor White
+    Write-Host "Email: $Email" -ForegroundColor White
+    Write-Host "Password: $Password" -ForegroundColor White
 }
 catch {
     Write-Host "❌ Error creating admin account:" -ForegroundColor Red
@@ -37,6 +43,6 @@ catch {
     if ($_.ErrorDetails.Message) { Write-Host "Details: $($_.ErrorDetails.Message)" -ForegroundColor Red }
     if (-not $UseProduction) {
         Write-Host ""
-        Write-Host "لو الـ API شغال على السيرفر، جرّب: .\create-admin.ps1 -UseProduction" -ForegroundColor Yellow
+        Write-Host "If API is on server, try: .\create-admin.ps1 -UseProduction" -ForegroundColor Yellow
     }
 }
