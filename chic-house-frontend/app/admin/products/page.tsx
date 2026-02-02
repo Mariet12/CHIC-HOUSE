@@ -56,24 +56,11 @@ export default function AdminProductsPage() {
 
       setProducts(prodItems);
       setCategories(catItems);
-      // Debug: اطبع بيانات المنتجات لمعرفة هيكل الصور
-      if (prodItems.length > 0) {
-        const sample = prodItems[0];
-        console.log("=== Product Image Debug ===");
-        console.log("Full product data:", JSON.stringify(sample, null, 2));
-        console.log("firstImageUrl:", sample?.firstImageUrl);
-        console.log("images array:", sample?.images);
-        console.log("images[0]:", sample?.images?.[0]);
-        console.log("images[0].imageUrl:", sample?.images?.[0]?.imageUrl);
-        console.log("images[0].ImageUrl:", sample?.images?.[0]?.ImageUrl);
-        console.log("===========================");
-      }
       // اختر أول قسم تلقائياً إذا لم يكن محدداً
       if (!form.categoryId && catItems.length > 0) {
         setForm((prev) => ({ ...prev, categoryId: (catItems[0].id ?? "").toString() }));
       }
     } catch (error: any) {
-      console.error("Fetch error:", error);
       toast.error(error.response?.data?.message || "فشل تحميل البيانات");
     } finally {
       setLoading(false);
@@ -150,17 +137,6 @@ export default function AdminProductsPage() {
       }
 
       // debug: اطبع البيانات في الـ console
-      const debugPayload = {
-        Name_Ar: form.name,
-        Name_En: form.name,
-        Price: priceValue,
-        CategoryId: categoryValue,
-        Description: form.description || "",
-        Discount: discountValue,
-        ImagesCount: form.images?.length || 0,
-      };
-      console.log("Submitting product payload:", debugPayload);
-
       if (form.id) {
         await productsApi.update(form.id, fd);
         toast.success("تم تحديث المنتج");
@@ -179,11 +155,6 @@ export default function AdminProductsPage() {
       });
       fetchData();
     } catch (error: any) {
-      console.error("Submit error:", error);
-      if (error?.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
-      }
       const msg = getErrorMessage(error);
       setLastError(msg);
       // لو السيرفر رجّع 400، نعرض رسالة توضيحية + الرسالة الخام من الباك لمساعدتك في معرفة السبب الحقيقي
@@ -429,7 +400,6 @@ export default function AdminProductsPage() {
                               alt={p.name_Ar || p.nameAr || p.name_En || p.nameEn || "Product"}
                               className="w-full h-full object-contain"
                               onError={(e) => {
-                                console.warn(`⚠️ Image not found for product ${p.id}: ${fullImageUrl}`);
                                 const target = e.target as HTMLImageElement;
                                 target.style.display = "none";
                                 const parent = target.parentElement;
@@ -440,9 +410,6 @@ export default function AdminProductsPage() {
                                   errorDiv.title = `الملف غير موجود على السيرفر: ${fullImageUrl}`;
                                   parent.appendChild(errorDiv);
                                 }
-                              }}
-                              onLoad={() => {
-                                console.log(`✅ Image loaded: Product ${p.id}`);
                               }}
                             />
                           </div>

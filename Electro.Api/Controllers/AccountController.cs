@@ -414,6 +414,7 @@ namespace Electro.Apis.Controllers
 
     public class UpgradeToAdminRequest
     {
+        [System.Text.Json.Serialization.JsonPropertyName("email")]
         public string Email { get; set; } = string.Empty;
     }
 }

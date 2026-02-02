@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
@@ -15,7 +16,10 @@ const nextConfig = {
         hostname: 'chic-house.runasp.net',
       },
     ],
-    unoptimized: false, // يمكن تغييره إلى true إذا كانت الصور لا تعمل
+    unoptimized: false,
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
   },
 }
 

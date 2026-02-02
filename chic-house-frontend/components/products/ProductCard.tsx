@@ -29,17 +29,6 @@ export default function ProductCard({ product }: { product: Product }) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Debug: اطبع بيانات المنتج لمعرفة هيكل الصور
-  React.useEffect(() => {
-    if (product.id === (product as any).id) {
-      console.log(`Product ${product.id} image data:`, {
-        firstImageUrl: product.firstImageUrl,
-        images: (product as any).images,
-        fullProduct: product
-      });
-    }
-  }, [product]);
-
   const handleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!token) {
@@ -97,7 +86,6 @@ export default function ProductCard({ product }: { product: Product }) {
                   className="w-full h-full object-contain group-hover:scale-105 transition-smooth cursor-pointer"
                   onClick={(e) => handleImageClick(e, imageUrl)}
                   onError={(e) => {
-                    console.warn(`⚠️ Image not found for product ${product.id}: ${imageUrl}`);
                     const target = e.target as HTMLImageElement;
                     target.style.display = "none";
                     const parent = target.parentElement;
@@ -107,9 +95,6 @@ export default function ProductCard({ product }: { product: Product }) {
                       placeholder.textContent = "لا توجد صورة";
                       parent.appendChild(placeholder);
                     }
-                  }}
-                  onLoad={() => {
-                    console.log(`✅ Image loaded: Product ${product.id}`);
                   }}
                 />
               ) : (

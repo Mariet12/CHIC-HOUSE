@@ -71,13 +71,15 @@ export default function AdminDashboardPage() {
     <div className="container mx-auto px-4 py-8 text-right">
       <h1 className="text-3xl font-bold mb-8 text-primary">لوحة التحكم</h1>
 
-      {/* Summary Cards */}
+      {/* Summary Cards — دعم أسماء الباكند الجديدة والقديمة */}
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
             <div>
               <p className="text-primary-dark mb-1">إجمالي المبيعات</p>
-              <p className="text-3xl font-bold text-primary">{summary.totalSales || 0} ج.م</p>
+              <p className="text-3xl font-bold text-primary">
+                {(summary.totalSales ?? summary.paidAmount ?? summary.completedSales ?? 0)} ج.م
+              </p>
             </div>
             <div className="text-[#a855f7] bg-[#f5eaff] p-3 rounded-xl">
               <ShoppingBag className="w-8 h-8" />
@@ -86,7 +88,9 @@ export default function AdminDashboardPage() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
             <div>
               <p className="text-primary-dark mb-1">إجمالي المستخدمين</p>
-              <p className="text-3xl font-bold text-primary">{summary.totalCustomers || 0}</p>
+              <p className="text-3xl font-bold text-primary">
+                {summary.totalCustomers ?? summary.customersCount ?? 0}
+              </p>
             </div>
             <div className="text-[#2563eb] bg-[#e3edff] p-3 rounded-xl">
               <Users className="w-8 h-8" />
@@ -95,7 +99,9 @@ export default function AdminDashboardPage() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
             <div>
               <p className="text-primary-dark mb-1">إجمالي المنتجات</p>
-              <p className="text-3xl font-bold text-primary">{summary.totalProducts || 0}</p>
+              <p className="text-3xl font-bold text-primary">
+                {summary.totalProducts ?? 0}
+              </p>
             </div>
             <div className="text-[#22c55e] bg-[#e6f7ed] p-3 rounded-xl">
               <Package className="w-8 h-8" />
@@ -104,7 +110,9 @@ export default function AdminDashboardPage() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50 flex items-center justify-between">
             <div>
               <p className="text-primary-dark mb-1">إجمالي الطلبات</p>
-              <p className="text-3xl font-bold text-primary">{summary.totalOrders || 0}</p>
+              <p className="text-3xl font-bold text-primary">
+                {summary.totalOrders ?? summary.ordersCount ?? 0}
+              </p>
             </div>
             <div className="text-[#3b82f6] bg-[#e5f0ff] p-3 rounded-xl">
               <Layers className="w-8 h-8" />

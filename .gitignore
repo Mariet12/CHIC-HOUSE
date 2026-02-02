@@ -40,6 +40,12 @@ coverage/
 # Backend specific
 Electro.Api/bin/
 Electro.Api/obj/
+Electro.Core/bin/
+Electro.Core/obj/
+Electro.Reposatory/bin/
+Electro.Reposatory/obj/
+Electro.Service/bin/
+Electro.Service/obj/
 Electro.Api/wwwroot/uploads/
 Electro.Api/wwwroot/**/*.json
 *.user

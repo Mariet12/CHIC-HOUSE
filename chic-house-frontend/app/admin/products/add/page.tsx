@@ -106,24 +106,16 @@ export default function AdminProductAddPage() {
         Array.from(form.images).forEach((file) => fd.append("Images", file));
       }
 
-      console.log("Submitting product (add) payload:", {
-        Name_Ar: form.name,
-        Name_En: form.name,
-        Price: priceValue,
-        CategoryId: categoryValue,
-        Description: form.description || "",
-        Discount: discountValue,
-        ImagesCount: form.images?.length || 0,
-      });
-
       await productsApi.create(fd);
       toast.success("تم إضافة المنتج");
       router.push("/admin/products");
     } catch (error: any) {
-      console.error("Submit error:", error);
-      if (error?.response) {
-        console.error("Response data:", error.response.data);
-        console.error("Response status:", error.response.status);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Submit error:", error);
+        if (error?.response) {
+          console.error("Response data:", error.response.data);
+          console.error("Response status:", error.response.status);
+        }
       }
       const msg = getErrorMessage(error);
       setLastError(msg);

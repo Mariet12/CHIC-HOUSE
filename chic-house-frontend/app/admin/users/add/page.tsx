@@ -57,14 +57,21 @@ export default function AddAdminUserPage() {
             return;
           }
         } catch (upgradeErr: any) {
-          const upgradeMsg = upgradeErr.response?.data?.message || upgradeErr.message || "فشل تحويل المستخدم لأدمن";
-          toast.error(upgradeMsg);
+          const status = upgradeErr.response?.status;
+          const upgradeMsg = upgradeErr.response?.data?.message || upgradeErr.message;
+          if (status === 404) {
+            toast.error("الخادم لا يدعم تحويل المستخدم لأدمن. يرجى تحديث نسخة الـ API على الخادم (إعادة النشر).");
+          } else {
+            toast.error(upgradeMsg || "فشل تحويل المستخدم لأدمن");
+          }
         }
       } else {
         const errorMessage = error.response?.data?.message || error.message || "فشل إضافة المستخدم";
         toast.error(errorMessage);
       }
-      console.error("Error adding admin user:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error adding admin user:", error);
+      }
     } finally {
       setLoading(false);
     }

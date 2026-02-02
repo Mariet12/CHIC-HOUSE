@@ -52,17 +52,6 @@ apiClient.interceptors.request.use((config) => {
     delete config.headers['Content-Type'];
   }
   
-  // Log request for debugging (only in development)
-  if (process.env.NODE_ENV === 'development') {
-    console.log("API Request:", {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      baseURL: config.baseURL,
-      hasToken: !!token,
-      isFormData: config.data instanceof FormData,
-    });
-  }
-  
   return config;
 });
 
@@ -70,20 +59,15 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Log error for debugging
-    if (error.response) {
-      console.error("API Error:", {
-        url: error.config?.url,
-        method: error.config?.method,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-    } else if (error.request) {
-      console.error("Network Error - No response received:", error.request);
-    } else {
-      console.error("Error:", error.message);
+    if (process.env.NODE_ENV === 'development') {
+      if (error.response) {
+        console.error("API Error:", error.config?.url, error.response?.status, error.response?.data);
+      } else if (error.request) {
+        console.error("Network Error:", error.request);
+      } else {
+        console.error("Error:", error.message);
+      }
     }
-    
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");

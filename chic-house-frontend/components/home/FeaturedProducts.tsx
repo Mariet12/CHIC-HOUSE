@@ -32,17 +32,9 @@ export default function FeaturedProducts() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log("Fetching products...");
         const response = await productsApi.getLatest(8);
-        console.log("Full response:", response);
-        console.log("Response data:", response.data);
-        console.log("Response data.data:", response.data?.data);
-        
-        let productsData = response.data?.data;
-        
-        // Handle both array and object responses
+        const productsData = response.data?.data;
         if (Array.isArray(productsData)) {
-          // Normalize the data structure
           const normalizedProducts = productsData.map((p: any) => ({
             id: p.id || p.Id,
             name_Ar: p.name_Ar || p.Name_Ar || "",
@@ -54,17 +46,12 @@ export default function FeaturedProducts() {
             isFavorite: p.isFavorite || p.IsFavorite || false,
             isInCart: p.isInCart || p.IsInCart || false,
           }));
-          console.log("Normalized products:", normalizedProducts);
           setProducts(normalizedProducts);
-        } else if (productsData) {
-          console.warn("Products data is not an array:", productsData);
-          setProducts([]);
         } else {
-          console.warn("No products data in response");
           setProducts([]);
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
+        if (process.env.NODE_ENV === "development") console.error("Error fetching products:", error);
         setProducts([]);
       } finally {
         setLoading(false);

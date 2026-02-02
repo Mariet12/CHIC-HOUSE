@@ -54,18 +54,6 @@ export default function RegisterPage() {
         formDataToSend.append("Image", image);
       }
 
-      // Log البيانات المرسلة للتطوير
-      if (process.env.NODE_ENV === 'development') {
-        console.log("Register FormData:", {
-          userName: formData.userName.trim(),
-          email: formData.email.trim(),
-          password: formData.password ? "***" : "",
-          role: formData.role || "Customer",
-          phoneNumber: formData.phoneNumber || "none",
-          hasImage: !!image
-        });
-      }
-
       await register(formDataToSend);
       router.push("/login");
     } catch (error) {
