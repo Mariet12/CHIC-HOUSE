@@ -53,35 +53,27 @@ namespace Electro.Apis.Controllers
                 model.Role = "Customer";
             }
 
-            // Remove Role errors from ModelState since we set a default
-            if (ModelState.ContainsKey("Role"))
-            {
-                ModelState.Remove("Role");
-            }
-
-            // Remove Image errors from ModelState (optional field - صورة اختيارية)
-            foreach (var key in ModelState.Keys.Where(k => k != null && (k.Equals("Image", StringComparison.OrdinalIgnoreCase) || k.EndsWith(".Image", StringComparison.OrdinalIgnoreCase))).ToList())
-            {
+            // إزالة أخطاء الحقول الاختيارية حتى لا تفشل الـ validation (الصورة ملغاة عند التسجيل)
+            var keysToRemove = ModelState.Keys
+                .Where(k => k != null && !string.IsNullOrEmpty(k) &&
+                    (string.Equals(k, "Role", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(k, "Image", StringComparison.OrdinalIgnoreCase) ||
+                     k.IndexOf(".Image", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     string.Equals(k, "PhoneNumber", StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+            foreach (var key in keysToRemove)
                 ModelState.Remove(key);
-            }
-            if (model != null && model.Image == null)
-            {
-                // تأكد أن الصورة اختيارية حتى لو الـ binding أضاف خطأ
-                model.Image = null;
-            }
 
-            // Remove PhoneNumber errors if empty (optional field)
-            if (ModelState.ContainsKey("PhoneNumber") && (model == null || string.IsNullOrWhiteSpace(model.PhoneNumber)))
-            {
-                ModelState.Remove("PhoneNumber");
-            }
+            if (model != null)
+                model.Image = null; // الصورة غير مطلوبة عند التسجيل
 
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>())
                                       .Select(x => x.ErrorMessage)
                                       .ToList();
-                _logger.LogWarning("ModelState validation failed: {Errors}", string.Join(", ", errors));
+                var keys = string.Join(", ", ModelState.Keys.Where(k => k != null));
+                _logger.LogWarning("ModelState validation failed. Keys: {Keys}. Errors: {Errors}", keys, string.Join("; ", errors));
                 return BadRequest(CreateValidationErrorResponse());
             }
 
