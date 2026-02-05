@@ -1,4 +1,4 @@
-﻿using Electro.Core.Dtos.Chat;
+using Electro.Core.Dtos.Chat;
 using Electro.Core.Entities.Chat;
 using Microsoft.VisualBasic;
 
@@ -15,7 +15,7 @@ namespace Electro.Core.Interfaces
     {
         Task<Conversation> CreateOrGetConversationAsync(string senderId, string receiverId);
         Task<Message> SendMessageAsync(int conversationId, string senderId, string receiverId, string content);
-        Task<IEnumerable<ConversationDTO>> GetAllConversationsAsync(ClaimsPrincipal user, string term = null);
+        Task<IEnumerable<ConversationDTO>> GetAllConversationsAsync(ClaimsPrincipal user, string? term = null);
         Task<List<MessageDto>> GetMessagesAsync(int conversationId);
         Task SaveMessageAsync(MessageDto messageDto);
         Task<IEnumerable<ConversationDTO>> GetAllConversationsAsync(ClaimsPrincipal user);

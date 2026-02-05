@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -38,7 +38,7 @@ namespace Electro.Core.Errors
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                 // Create ApiResponse based on environment
-                var response = env.IsDevelopment() ? new ApiExceptionResponse((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace.ToString())
+                var response = env.IsDevelopment() ? new ApiExceptionResponse((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace?.ToString() ?? string.Empty)
                                                    : new ApiExceptionResponse((int)HttpStatusCode.InternalServerError);
 
                 // Configure JSON serialization options

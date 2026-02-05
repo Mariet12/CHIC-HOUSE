@@ -1,10 +1,11 @@
-﻿using Electro.Core.Models;
+using Electro.Core.Models;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Electro.Core.Dtos.Product
@@ -55,33 +56,72 @@ namespace Electro.Core.Dtos.Product
 
     public class ProductDto
     {
+        [JsonPropertyName("id")]
         public int Id { get; set; }
+        [JsonPropertyName("name_Ar")]
         public string Name_Ar { get; set; }
+        [JsonPropertyName("name_En")]
         public string Name_En { get; set; }
+        [JsonPropertyName("description")]
         public string Description { get; set; }
+        [JsonPropertyName("countryOfOrigin")]
         public string CountryOfOrigin { get; set; }
+        [JsonPropertyName("brand")]
         public string Brand { get; set; }
+        [JsonPropertyName("warranty")]
         public string Warranty { get; set; }
+        [JsonPropertyName("price")]
         public double Price { get; set; }
+        [JsonPropertyName("categoryId")]
         public int CategoryId { get; set; }
+        [JsonPropertyName("categoryName")]
         public string CategoryName { get; set; }
+        [JsonPropertyName("images")]
         public List<ProductImageDto> Images { get; set; } = new List<ProductImageDto>();
+        [JsonPropertyName("isFavorite")]
         public bool IsFavorite { get; set; }
+        [JsonPropertyName("isInCart")]
         public bool IsInCart { get; set; }
+        [JsonPropertyName("firstImageUrl")]
         public string? FirstImageUrl { get; set; }
-
-        public decimal EffectivePrice { get; set; }          // السعر بعد الخصم (لو في خصم)
+        [JsonPropertyName("effectivePrice")]
+        public decimal EffectivePrice { get; set; }
+        [JsonPropertyName("hasDiscount")]
         public bool HasDiscount { get; set; }
+        [JsonPropertyName("appliedBannerId")]
         public int? AppliedBannerId { get; set; }
+        [JsonPropertyName("appliedBannerTitle")]
         public string? AppliedBannerTitle { get; set; }
+        [JsonPropertyName("discountValue")]
         public decimal? DiscountValue { get; set; }
+        [JsonPropertyName("discountType")]
         public DiscountType? DiscountType { get; set; }
+        [JsonPropertyName("displayOrder")]
+        public int DisplayOrder { get; set; }
     }
 
     public class ProductImageDto
     {
+        [JsonPropertyName("id")]
         public int Id { get; set; }
+        [JsonPropertyName("imageUrl")]
         public string ImageUrl { get; set; }
+        [JsonPropertyName("productId")]
         public int ProductId { get; set; }
+    }
+
+    /// <summary>عنصر واحد لتحديث ترتيب المنتج</summary>
+    public class DisplayOrderItemDto
+    {
+        [JsonPropertyName("productId")]
+        public int ProductId { get; set; }
+        [JsonPropertyName("displayOrder")]
+        public int DisplayOrder { get; set; }
+    }
+
+    public class UpdateDisplayOrderRequestDto
+    {
+        [JsonPropertyName("updates")]
+        public List<DisplayOrderItemDto> Updates { get; set; } = new();
     }
 }

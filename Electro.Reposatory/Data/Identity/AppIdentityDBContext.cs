@@ -1,4 +1,4 @@
-﻿using Electro.Core.Entities.Chat;
+using Electro.Core.Entities.Chat;
 using Electro.Core.Models;
 using Electro.Core.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -47,6 +47,14 @@ namespace Electro.Reposatory.Data.Identity
 
             modelBuilder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
 
+            // تحديد نوع العمود للـ decimal لتجنب التحذير والقطع
+            modelBuilder.Entity<Banner>(b =>
+            {
+                b.Property(x => x.DiscountValue).HasPrecision(18, 2);
+            });
+
+            modelBuilder.Entity<BannerProduct>().HasQueryFilter(e => !e.Product!.IsDeleted);
+
             modelBuilder.Entity<Cart>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -66,6 +74,7 @@ namespace Electro.Reposatory.Data.Identity
                     .WithMany()
                     .HasForeignKey(e => e.ProductId)
                     .OnDelete(DeleteBehavior.Restrict);
+                entity.HasQueryFilter(e => !e.Product!.IsDeleted);
             });
 
             // Favorites configuration
@@ -78,6 +87,7 @@ namespace Electro.Reposatory.Data.Identity
                     .WithMany()
                     .HasForeignKey(e => e.ProductId)
                     .OnDelete(DeleteBehavior.Cascade);
+                entity.HasQueryFilter(e => !e.Product!.IsDeleted);
             });
 
             // Order configuration
@@ -106,6 +116,7 @@ namespace Electro.Reposatory.Data.Identity
                     .WithMany()
                     .HasForeignKey(e => e.ProductId)
                     .OnDelete(DeleteBehavior.Restrict);
+                entity.HasQueryFilter(e => !e.Product!.IsDeleted);
             });
            
             modelBuilder.Entity<Notification>(b =>

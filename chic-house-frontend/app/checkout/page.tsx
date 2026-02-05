@@ -113,7 +113,6 @@ export default function CheckoutPage() {
                 className="w-full px-4 py-2 border rounded-lg"
               >
                 <option value="cash">الدفع عند الاستلام</option>
-                <option value="card">بطاقة ائتمان</option>
               </select>
             </div>
             <div>

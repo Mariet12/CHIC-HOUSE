@@ -1,4 +1,4 @@
-﻿using Electro.Core.Dtos.Product;
+using Electro.Core.Dtos.Product;
 using Electro.Core.Dtos;
 using Electro.Core.Interface;
 using Electro.Core.Models;
@@ -63,14 +63,14 @@ public class ProductService : IProductService
                 (p.Brand != null && p.Brand.Contains(s)));
         }
 
-        // Sorting
+        // Sorting (الافتراضي: ترتيب الأدمن ثم الأحدث)
         q = query.SortBy?.ToLowerInvariant() switch
         {
-            "price" => q.OrderBy(p => p.Price).ThenByDescending(p => p.Id),
-            "-price" => q.OrderByDescending(p => p.Price).ThenByDescending(p => p.Id),
-            "name" => q.OrderBy(p => (p.Name_En ?? p.Name_Ar)).ThenByDescending(p => p.Id),
-            "-name" => q.OrderByDescending(p => (p.Name_En ?? p.Name_Ar)).ThenByDescending(p => p.Id),
-            _ => q.OrderByDescending(p => p.Id) // new
+            "price" => q.OrderBy(p => p.Price).ThenBy(p => p.DisplayOrder).ThenByDescending(p => p.Id),
+            "-price" => q.OrderByDescending(p => p.Price).ThenBy(p => p.DisplayOrder).ThenByDescending(p => p.Id),
+            "name" => q.OrderBy(p => (p.Name_En ?? p.Name_Ar)).ThenBy(p => p.DisplayOrder).ThenByDescending(p => p.Id),
+            "-name" => q.OrderByDescending(p => (p.Name_En ?? p.Name_Ar)).ThenBy(p => p.DisplayOrder).ThenByDescending(p => p.Id),
+            _ => q.OrderBy(p => p.DisplayOrder).ThenByDescending(p => p.Id) // ترتيب الأدمن ثم الأحدث
         };
 
         var total = await q.CountAsync(ct);
@@ -109,7 +109,8 @@ public class ProductService : IProductService
                 AppliedBannerId = null,
                 AppliedBannerTitle = null,
                 DiscountType = null,
-                DiscountValue = null
+                DiscountValue = null,
+                DisplayOrder = p.DisplayOrder
             })
             .ToListAsync(ct);
 
@@ -183,7 +184,8 @@ public class ProductService : IProductService
                 AppliedBannerId = null,
                 AppliedBannerTitle = null,
                 DiscountType = null,
-                DiscountValue = null
+                DiscountValue = null,
+                DisplayOrder = p.DisplayOrder
             })
             .FirstOrDefaultAsync(ct);
 
@@ -314,8 +316,8 @@ public class ProductService : IProductService
             .Include(p => p.Category)
             .Include(p => p.ProductImages)
             .Where(p => !p.IsDeleted)
-            //.OrderByDescending(p => p.CreatedDate)
-            .OrderByDescending(p => p.Id) // fallback لو مفيش CreatedDate
+            .OrderBy(p => p.DisplayOrder)
+            .ThenByDescending(p => p.Id)
             .Take(take)
             .Select(p => new ProductDto
             {
@@ -345,7 +347,8 @@ public class ProductService : IProductService
                 AppliedBannerId = null,
                 AppliedBannerTitle = null,
                 DiscountType = null,
-                DiscountValue = null
+                DiscountValue = null,
+                DisplayOrder = p.DisplayOrder
             })
             .ToListAsync(ct);
 
@@ -432,7 +435,8 @@ public class ProductService : IProductService
                 AppliedBannerId = null,
                 AppliedBannerTitle = null,
                 DiscountType = null,
-                DiscountValue = null
+                DiscountValue = null,
+                DisplayOrder = p.DisplayOrder
             })
             .ToListAsync(ct);
 
@@ -461,6 +465,18 @@ public class ProductService : IProductService
         return items;
     }
 
+    public async Task<bool> UpdateDisplayOrderAsync(IReadOnlyList<(int productId, int displayOrder)> updates, CancellationToken ct = default)
+    {
+        if (updates == null || updates.Count == 0) return true;
+        var ids = updates.Select(x => x.productId).Distinct().ToList();
+        var products = await _context.Products.Where(p => ids.Contains(p.Id) && !p.IsDeleted).ToListAsync(ct);
+        var orderMap = updates.ToDictionary(x => x.productId, x => x.displayOrder);
+        foreach (var p in products)
+            if (orderMap.TryGetValue(p.Id, out var order))
+                p.DisplayOrder = order;
+        await _context.SaveChangesAsync(ct);
+        return true;
+    }
 
     // Helpers
     private async Task<List<string>> SaveImagesAsync(List<IFormFile> images, CancellationToken ct)

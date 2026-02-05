@@ -1,23 +1,27 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Electro.Core.Errors
 {
     public class ApiResponse
     {
+        [JsonPropertyName("statusCode")]
         public int StatusCode { get; set; }
-        public string Message { get; set; }
-        public object Data { get; set; }
-        public List<string> Errors { get; set; }
+        [JsonPropertyName("message")]
+        public string? Message { get; set; }
+        [JsonPropertyName("data")]
+        public object? Data { get; set; }
+        [JsonPropertyName("errors")]
+        public List<string>? Errors { get; set; }
         public ApiResponse()
         {
         }
-        public ApiResponse(int statusCode, string message, object data = null)
+        public ApiResponse(int statusCode, string message, object? data = null)
         {
             StatusCode = statusCode;
             Message = message;
             Data = data;
         }
-        public ApiResponse(int statusCode, string message = null)
+        public ApiResponse(int statusCode, string? message = null)
         {
             StatusCode = statusCode;
             Message = message ?? GetDefaultMessageForStatusCode(StatusCode);

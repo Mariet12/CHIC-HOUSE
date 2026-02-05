@@ -93,6 +93,9 @@ export const productsApi = {
   update: (id: number, formData: FormData) =>
     apiClient.put(`/Products/${id}`, formData),
   delete: (id: number) => apiClient.delete(`/Products/${id}`),
+  /** تحديث ترتيب ظهور المنتجات (الأدمن فقط) */
+  updateDisplayOrder: (updates: { productId: number; displayOrder: number }[]) =>
+    apiClient.put("/Products/display-order", { updates }),
 };
 
 // ========== Categories API ==========

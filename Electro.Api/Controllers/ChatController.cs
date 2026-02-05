@@ -31,9 +31,12 @@ namespace Electro.Apis.Controllers
         }
 
         [HttpPost("create-conversation")]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         public async Task<IActionResult> CreateConversation([FromBody] CreateConversationDTO dto)
         {
-            // إنشاء أو الحصول على المحادثة باستخدام الـ senderId و receiverId
+            if (dto == null || string.IsNullOrWhiteSpace(dto.SenderId) || string.IsNullOrWhiteSpace(dto.ReceiverId))
+                return BadRequest(new { message = "SenderId and ReceiverId are required." });
+
             try
             {
                 var conversation = await _chatService.CreateOrGetConversationAsync(dto.SenderId, dto.ReceiverId);
@@ -60,6 +63,10 @@ namespace Electro.Apis.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "تعذر إنشاء المحادثة.", detail = ex.Message });
             }
         }
         [HttpGet("all-chats")]

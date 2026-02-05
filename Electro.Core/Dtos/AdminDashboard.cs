@@ -16,30 +16,48 @@ namespace Electro.Core.Dtos.AdminDashboard
         public int OrdersCount { get; set; }
         public int CustomersCount { get; set; }
         /// <summary>إجمالي المبيعات (كل الطلبات) للعرض في البطاقات</summary>
+        [System.Text.Json.Serialization.JsonPropertyName("totalSales")]
         public decimal TotalSales { get; set; }
         /// <summary>إجمالي الطلبات للعرض في البطاقات</summary>
+        [System.Text.Json.Serialization.JsonPropertyName("totalOrders")]
         public int TotalOrders { get; set; }
         /// <summary>إجمالي العملاء للعرض في البطاقات</summary>
+        [System.Text.Json.Serialization.JsonPropertyName("totalCustomers")]
         public int TotalCustomers { get; set; }
         /// <summary>إجمالي المنتجات للعرض في البطاقات</summary>
+        [System.Text.Json.Serialization.JsonPropertyName("totalProducts")]
         public int TotalProducts { get; set; }
     }
 
     public class RecentOrderRowDto
     {
+        [System.Text.Json.Serialization.JsonPropertyName("orderId")]
         public int OrderId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("orderNumber")]
         public string OrderNumber { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("customer")]
         public string Customer { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("email")]
         public string Email { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("phoneNumber")]
         public string PhoneNumber { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("paymentMethod")]
         public string PaymentMethod { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("shippingAddress")]
         public string ShippingAddress { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("createdAt")]
         public DateTime CreatedAt { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("updatedAt")]
         public DateTime? UpdatedAt { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("userId")]
         public string UserId { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("total")]
         public decimal Total { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
         public string Status { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("paymentStatus")]
         public bool PaymentStatus { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("orderItems")]
         public ICollection<OrderItem> OrderItems { get; set; }
     }
 
@@ -83,10 +101,15 @@ namespace Electro.Core.Dtos.AdminDashboard
 
     public sealed class PagedResult<T>
     {
+        [System.Text.Json.Serialization.JsonPropertyName("pageNumber")]
         public int PageNumber { get; init; }
+        [System.Text.Json.Serialization.JsonPropertyName("pageSize")]
         public int PageSize { get; init; }
+        [System.Text.Json.Serialization.JsonPropertyName("totalCount")]
         public int TotalCount { get; init; }
+        [System.Text.Json.Serialization.JsonPropertyName("totalPages")]
         public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+        [System.Text.Json.Serialization.JsonPropertyName("items")]
         public IReadOnlyList<T> Items { get; init; } = Array.Empty<T>();
     }
     public class AdminCustomerRowDto

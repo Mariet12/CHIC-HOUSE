@@ -99,7 +99,7 @@ namespace Electro.services
             }).ToList();
         }
       
-        public async Task<IEnumerable<ConversationDTO>> GetAllConversationsAsync(ClaimsPrincipal user, string receiverName = null)
+        public async Task<IEnumerable<ConversationDTO>> GetAllConversationsAsync(ClaimsPrincipal user, string? term = null)
         {
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -115,12 +115,12 @@ namespace Electro.services
                 .Where(c => c.SenderId == userId || c.ReceiverId == userId)
                 .AsQueryable();
 
-            // إذا كان هناك receiverName، تصفية المحادثات بناءً على اسم المستقبل
-            if (!string.IsNullOrEmpty(receiverName))
+            // إذا كان هناك term، تصفية المحادثات بناءً على الاسم
+            if (!string.IsNullOrEmpty(term))
             {
                 conversationsQuery = conversationsQuery.Where(c =>
-                    c.Receiver.UserName.Contains(receiverName) ||
-                    c.Sender.UserName.Contains(receiverName)   // إذا أردت البحث أيضًا بالمرسل
+                    (c.Receiver != null && c.Receiver.UserName != null && c.Receiver.UserName.Contains(term)) ||
+                    (c.Sender != null && c.Sender.UserName != null && c.Sender.UserName.Contains(term))
                 );
             }
 

@@ -1,17 +1,23 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Electro.Core.Dtos
 {
     public class PaginatedResult<T>
     {
+        [JsonPropertyName("totalCount")]
         public int TotalCount { get; set; }
+        [JsonPropertyName("page")]
         public int Page { get; set; }
+        [JsonPropertyName("pageSize")]
         public int PageSize { get; set; }
+        [JsonPropertyName("items")]
         public List<T> Items { get; set; }
+        [JsonPropertyName("extras")]
         public object? Extras { get; set; }
 
     }

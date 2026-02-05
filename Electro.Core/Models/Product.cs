@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +18,8 @@ namespace Electro.Core.Models
         public double Price {  get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; }
+        /// <summary>ترتيب ظهور المنتج حسب رغبة الأدمن (الأصغر يظهر أولاً)</summary>
+        public int DisplayOrder { get; set; } = 0;
         public List<ProductImage> ProductImages { get; set; }
         public bool IsDeleted { get; set; } = false; // Soft delete flag
 

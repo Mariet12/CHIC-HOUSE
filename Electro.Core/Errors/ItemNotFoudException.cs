@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -10,6 +10,7 @@ namespace Electro.Core.Errors
     public class ItemNotFoundException : Exception
     {
         public ItemNotFoundException(string? message) : base(message) { }
+        [System.Diagnostics.CodeAnalysis.DoesNotReturn]
         public static void Throw(string? message) =>
             throw new ItemNotFoundException(message);
 
