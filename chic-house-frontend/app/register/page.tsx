@@ -37,18 +37,13 @@ export default function RegisterPage() {
     
     setLoading(true);
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("UserName", formData.userName.trim());
-      formDataToSend.append("Email", formData.email.trim());
-      formDataToSend.append("Password", formData.password);
-      formDataToSend.append("Role", formData.role || "Customer");
-      
-      // إضافة PhoneNumber فقط إذا كان له قيمة
-      if (formData.phoneNumber && formData.phoneNumber.trim()) {
-        formDataToSend.append("PhoneNumber", formData.phoneNumber.trim());
-      }
-
-      await register(formDataToSend);
+      await register({
+        userName: formData.userName.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        role: formData.role || "Customer",
+        ...(formData.phoneNumber?.trim() && { phoneNumber: formData.phoneNumber.trim() }),
+      });
       router.push("/login");
     } catch (error) {
       // Error handled in context (e.g., email already exists)

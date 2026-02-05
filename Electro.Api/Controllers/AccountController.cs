@@ -41,6 +41,59 @@ namespace Electro.Apis.Controllers
             }
         }
 
+        /// <summary>تسجيل حساب جديد عبر JSON (موصى به - لا يعتمد على FormData).</summary>
+        [HttpPost("register-json")]
+        public async Task<IActionResult> RegisterJson([FromBody] RegisterDto dto)
+        {
+            if (dto == null)
+            {
+                return BadRequest(new { statusCode = 400, message = "بيانات التسجيل مطلوبة" });
+            }
+
+            var model = new Register
+            {
+                UserName = dto.UserName?.Trim() ?? "",
+                Email = dto.Email?.Trim() ?? "",
+                Password = dto.Password ?? "",
+                PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim(),
+                Role = string.IsNullOrWhiteSpace(dto.Role) ? "Customer" : dto.Role.Trim(),
+                Image = null
+            };
+
+            if (string.IsNullOrWhiteSpace(model.UserName))
+            {
+                return BadRequest(new { statusCode = 400, message = "اسم المستخدم مطلوب", errors = new[] { "UserName is required" } });
+            }
+            if (string.IsNullOrWhiteSpace(model.Email))
+            {
+                return BadRequest(new { statusCode = 400, message = "البريد الإلكتروني مطلوب", errors = new[] { "Email is required" } });
+            }
+            if (!model.Email.Contains("@") || model.Email.Length < 5)
+            {
+                return BadRequest(new { statusCode = 400, message = "تنسيق البريد الإلكتروني غير صحيح", errors = new[] { "Invalid email format" } });
+            }
+            if (string.IsNullOrWhiteSpace(model.Password))
+            {
+                return BadRequest(new { statusCode = 400, message = "كلمة المرور مطلوبة", errors = new[] { "Password is required" } });
+            }
+            if (model.Password.Length < 6)
+            {
+                return BadRequest(new { statusCode = 400, message = "كلمة المرور يجب أن تكون 6 أحرف على الأقل", errors = new[] { "Password must be at least 6 characters" } });
+            }
+
+            try
+            {
+                var result = await _accountService.RegisterAsync(model);
+                _logger.LogInformation("Registration result: {StatusCode}, {Message}", result.StatusCode, result.Message);
+                return StatusCode(result.StatusCode, CreateResponse(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during registration for email: {Email}", model.Email);
+                return StatusCode(500, CreateErrorResponse("Registration failed"));
+            }
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromForm] Register model)
         {

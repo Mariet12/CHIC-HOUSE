@@ -19,7 +19,7 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
-  register: (formData: FormData) => Promise<void>;
+  register: (data: { userName: string; email: string; password: string; phoneNumber?: string; role?: string }) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -141,9 +141,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (formData: FormData) => {
+  const register = async (data: { userName: string; email: string; password: string; phoneNumber?: string; role?: string }) => {
     try {
-      const response = await accountApi.register(formData);
+      const response = await accountApi.register(data);
       if (response.data?.statusCode === 200) {
         toast.success("تم إنشاء الحساب بنجاح");
       } else {
