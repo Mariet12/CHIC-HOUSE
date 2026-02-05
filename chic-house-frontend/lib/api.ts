@@ -127,7 +127,7 @@ export const accountApi = {
   login: (data: { email: string; password: string }) =>
     apiClient.post("/Account/login", data),
   register: (data: { userName: string; email: string; password: string; phoneNumber?: string; role?: string }) =>
-    apiClient.post("/Account/register-json", data),
+    apiClient.post("/Account/register", data),
   getUserInfo: () => apiClient.get("/Account/user-info"),
   updateUser: (formData: FormData) =>
     apiClient.put("/Account/update-user", formData),

@@ -41,9 +41,9 @@ namespace Electro.Apis.Controllers
             }
         }
 
-        /// <summary>تسجيل حساب جديد عبر JSON (موصى به - لا يعتمد على FormData).</summary>
-        [HttpPost("register-json")]
-        public async Task<IActionResult> RegisterJson([FromBody] RegisterDto dto)
+        /// <summary>تسجيل حساب جديد. يقبل JSON على المسار /Account/register.</summary>
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             if (dto == null)
             {
@@ -90,62 +90,6 @@ namespace Electro.Apis.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during registration for email: {Email}", model.Email);
-                return StatusCode(500, CreateErrorResponse("Registration failed"));
-            }
-        }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromForm] Register model)
-        {
-            _logger.LogInformation("Registration attempt for email: {Email}, UserName: {UserName}", 
-                model?.Email, model?.UserName);
-
-            if (model == null)
-            {
-                return BadRequest(new { statusCode = 400, message = "Registration data is required" });
-            }
-
-            // تجاهل ModelState والاعتماد على التحقق اليدوي فقط (لتجنب أخطاء الربط مع FormData)
-            model.Role = string.IsNullOrWhiteSpace(model.Role) ? "Customer" : model.Role.Trim();
-            model.PhoneNumber = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber.Trim();
-            model.Image = null; // الصورة غير مطلوبة عند التسجيل
-
-            // التحقق من الحقول المطلوبة فقط
-            if (string.IsNullOrWhiteSpace(model.UserName))
-            {
-                return BadRequest(new { statusCode = 400, message = "اسم المستخدم مطلوب", errors = new[] { "UserName is required" } });
-            }
-            model.UserName = model.UserName.Trim();
-
-            if (string.IsNullOrWhiteSpace(model.Email))
-            {
-                return BadRequest(new { statusCode = 400, message = "البريد الإلكتروني مطلوب", errors = new[] { "Email is required" } });
-            }
-            model.Email = model.Email.Trim();
-            if (!model.Email.Contains("@") || model.Email.Length < 5)
-            {
-                return BadRequest(new { statusCode = 400, message = "تنسيق البريد الإلكتروني غير صحيح", errors = new[] { "Invalid email format" } });
-            }
-
-            if (string.IsNullOrWhiteSpace(model.Password))
-            {
-                return BadRequest(new { statusCode = 400, message = "كلمة المرور مطلوبة", errors = new[] { "Password is required" } });
-            }
-            if (model.Password.Length < 6)
-            {
-                return BadRequest(new { statusCode = 400, message = "كلمة المرور يجب أن تكون 6 أحرف على الأقل", errors = new[] { "Password must be at least 6 characters" } });
-            }
-
-            try
-            {
-                var result = await _accountService.RegisterAsync(model);
-                _logger.LogInformation("Registration result: StatusCode={StatusCode}, Message={Message}", 
-                    result.StatusCode, result.Message);
-                return StatusCode(result.StatusCode, CreateResponse(result));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during registration for email: {Email}", model?.Email);
                 return StatusCode(500, CreateErrorResponse("Registration failed"));
             }
         }
