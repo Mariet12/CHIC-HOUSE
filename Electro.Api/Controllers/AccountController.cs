@@ -44,58 +44,43 @@ namespace Electro.Apis.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromForm] Register model)
         {
-            _logger.LogInformation("Registration attempt for email: {Email}, UserName: {UserName}, Role: {Role}", 
-                model?.Email, model?.UserName, model?.Role);
-
-            // Set default Role if not provided
-            if (model != null && string.IsNullOrWhiteSpace(model.Role))
-            {
-                model.Role = "Customer";
-            }
-
-            // إزالة أخطاء الحقول الاختيارية حتى لا تفشل الـ validation (الصورة ملغاة عند التسجيل)
-            var keysToRemove = ModelState.Keys
-                .Where(k => k != null && !string.IsNullOrEmpty(k) &&
-                    (string.Equals(k, "Role", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(k, "Image", StringComparison.OrdinalIgnoreCase) ||
-                     k.IndexOf(".Image", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     string.Equals(k, "PhoneNumber", StringComparison.OrdinalIgnoreCase)))
-                .ToList();
-            foreach (var key in keysToRemove)
-                ModelState.Remove(key);
-
-            if (model != null)
-                model.Image = null; // الصورة غير مطلوبة عند التسجيل
-
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>())
-                                      .Select(x => x.ErrorMessage)
-                                      .ToList();
-                var keys = string.Join(", ", ModelState.Keys.Where(k => k != null));
-                _logger.LogWarning("ModelState validation failed. Keys: {Keys}. Errors: {Errors}", keys, string.Join("; ", errors));
-                return BadRequest(CreateValidationErrorResponse());
-            }
+            _logger.LogInformation("Registration attempt for email: {Email}, UserName: {UserName}", 
+                model?.Email, model?.UserName);
 
             if (model == null)
             {
-                return BadRequest(CreateErrorResponse("Registration data is required"));
+                return BadRequest(new { statusCode = 400, message = "Registration data is required" });
             }
 
-            // Manual validation for required fields
+            // تجاهل ModelState والاعتماد على التحقق اليدوي فقط (لتجنب أخطاء الربط مع FormData)
+            model.Role = string.IsNullOrWhiteSpace(model.Role) ? "Customer" : model.Role.Trim();
+            model.PhoneNumber = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber.Trim();
+            model.Image = null; // الصورة غير مطلوبة عند التسجيل
+
+            // التحقق من الحقول المطلوبة فقط
             if (string.IsNullOrWhiteSpace(model.UserName))
             {
-                return BadRequest(CreateErrorResponse("UserName is required"));
+                return BadRequest(new { statusCode = 400, message = "اسم المستخدم مطلوب", errors = new[] { "UserName is required" } });
             }
+            model.UserName = model.UserName.Trim();
 
             if (string.IsNullOrWhiteSpace(model.Email))
             {
-                return BadRequest(CreateErrorResponse("Email is required"));
+                return BadRequest(new { statusCode = 400, message = "البريد الإلكتروني مطلوب", errors = new[] { "Email is required" } });
+            }
+            model.Email = model.Email.Trim();
+            if (!model.Email.Contains("@") || model.Email.Length < 5)
+            {
+                return BadRequest(new { statusCode = 400, message = "تنسيق البريد الإلكتروني غير صحيح", errors = new[] { "Invalid email format" } });
             }
 
             if (string.IsNullOrWhiteSpace(model.Password))
             {
-                return BadRequest(CreateErrorResponse("Password is required"));
+                return BadRequest(new { statusCode = 400, message = "كلمة المرور مطلوبة", errors = new[] { "Password is required" } });
+            }
+            if (model.Password.Length < 6)
+            {
+                return BadRequest(new { statusCode = 400, message = "كلمة المرور يجب أن تكون 6 أحرف على الأقل", errors = new[] { "Password must be at least 6 characters" } });
             }
 
             try
