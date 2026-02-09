@@ -19,7 +19,7 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
-  register: (data: { userName: string; email: string; password: string; phoneNumber?: string; role?: string }) => Promise<void>;
+  register: (formData: FormData) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -141,9 +141,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (data: { userName: string; email: string; password: string; phoneNumber?: string; role?: string }) => {
+  const register = async (formData: FormData) => {
     try {
-      const response = await accountApi.register(data);
+      const response = await accountApi.register(formData);
       if (response.data?.statusCode === 200) {
         toast.success("تم إنشاء الحساب بنجاح");
       } else {
@@ -158,18 +158,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
           const validationErrors = errorData.errors
             .map((err: string) => {
-              const lower = (err || "").toLowerCase();
-              if (lower.includes("email")) return "البريد الإلكتروني مطلوب أو غير صحيح";
-              if (lower.includes("password")) return "كلمة المرور مطلوبة (6 أحرف على الأقل)";
-              if (lower.includes("username") || lower.includes("user name")) return "اسم المستخدم مطلوب";
-              if (lower.includes("role")) return "الدور مطلوب";
-              if (lower.includes("required") || lower.includes("مطلوب")) return "يرجى ملء جميع الحقول المطلوبة";
-              if (lower.includes("length") || lower.includes("6")) return "كلمة المرور يجب أن تكون 6 أحرف على الأقل";
+              // ترجمة أخطاء شائعة
+              const lower = err.toLowerCase();
+              if (lower.includes("required") || lower.includes("مطلوب")) {
+                if (lower.includes("email")) return "البريد الإلكتروني مطلوب";
+                if (lower.includes("password")) return "كلمة المرور مطلوبة";
+                if (lower.includes("username")) return "اسم المستخدم مطلوب";
+                if (lower.includes("role")) return "الدور مطلوب";
+                return "جميع الحقول المطلوبة يجب ملؤها";
+              }
+              if (lower.includes("email")) return "البريد الإلكتروني غير صحيح";
+              if (lower.includes("password") && lower.includes("length")) return "كلمة المرور يجب أن تكون 6 أحرف على الأقل";
+              if (lower.includes("invalid email")) return "تنسيق البريد الإلكتروني غير صحيح";
               return err;
             })
-            .filter((s: string) => s)
-            .join(". ");
-          errorMessage = validationErrors ? `خطأ في البيانات: ${validationErrors}` : errorData.message || errorMessage;
+            .join(", ");
+          errorMessage = `خطأ في البيانات: ${validationErrors}`;
         } 
         // عرض رسالة الخطأ من الـ API
         else if (errorData.message) {

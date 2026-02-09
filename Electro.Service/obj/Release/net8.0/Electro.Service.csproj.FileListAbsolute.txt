@@ -32,3 +32,4 @@ C:\Users\marie\Desktop\HAND MADE\Electro.Service\obj\Release\net8.0\Electro.Serv
 C:\Users\marie\Desktop\HAND MADE\Electro.Service\obj\Release\net8.0\refint\Electro.Service.dll
 C:\Users\marie\Desktop\HAND MADE\Electro.Service\obj\Release\net8.0\Electro.Service.pdb
 C:\Users\marie\Desktop\HAND MADE\Electro.Service\obj\Release\net8.0\ref\Electro.Service.dll
+C:\Users\marie\Desktop\HAND MADE\Electro.Service\obj\Release\net8.0\Electro.Service.sourcelink.json

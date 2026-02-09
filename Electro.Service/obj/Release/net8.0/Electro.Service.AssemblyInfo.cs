@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Electro.Service")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d4c33e7cba754b53bab5b9548ad466751f173551")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6d7da79710343051eca4cd950465fc337b1b2007")]
 [assembly: System.Reflection.AssemblyProductAttribute("Electro.Service")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Electro.Service")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

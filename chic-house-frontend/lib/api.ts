@@ -93,9 +93,6 @@ export const productsApi = {
   update: (id: number, formData: FormData) =>
     apiClient.put(`/Products/${id}`, formData),
   delete: (id: number) => apiClient.delete(`/Products/${id}`),
-  /** تحديث ترتيب ظهور المنتجات (الأدمن فقط) */
-  updateDisplayOrder: (updates: { productId: number; displayOrder: number }[]) =>
-    apiClient.put("/Products/display-order", { updates }),
 };
 
 // ========== Categories API ==========
@@ -126,8 +123,8 @@ export const cartApi = {
 export const accountApi = {
   login: (data: { email: string; password: string }) =>
     apiClient.post("/Account/login", data),
-  register: (data: { userName: string; email: string; password: string; phoneNumber?: string; role?: string }) =>
-    apiClient.post("/Account/register", data),
+  register: (formData: FormData) =>
+    apiClient.post("/Account/register", formData),
   getUserInfo: () => apiClient.get("/Account/user-info"),
   updateUser: (formData: FormData) =>
     apiClient.put("/Account/update-user", formData),

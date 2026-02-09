@@ -42,14 +42,7 @@ export default function AdminDashboardPage() {
       const rawOrders = ordersRes.data?.data;
 
       if (rawSummary) {
-        const s = rawSummary as Record<string, unknown>;
-        setSummary({
-          ...rawSummary,
-          totalProducts: Number(s?.totalProducts ?? s?.TotalProducts ?? s?.productsCount ?? s?.ProductsCount ?? 0),
-          totalOrders: Number(s?.totalOrders ?? s?.TotalOrders ?? s?.ordersCount ?? s?.OrdersCount ?? 0),
-          totalCustomers: Number(s?.totalCustomers ?? s?.TotalCustomers ?? s?.customersCount ?? s?.CustomersCount ?? 0),
-          totalSales: Number(s?.totalSales ?? s?.TotalSales ?? s?.paidAmount ?? s?.PaidAmount ?? 0),
-        });
+        setSummary(rawSummary);
       }
       if (rawOrders && Array.isArray(rawOrders)) {
         setRecentOrders(rawOrders);

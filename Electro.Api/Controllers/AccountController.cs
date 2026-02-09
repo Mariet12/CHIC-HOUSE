@@ -41,55 +41,81 @@ namespace Electro.Apis.Controllers
             }
         }
 
-        /// <summary>تسجيل حساب جديد. يقبل JSON على المسار /Account/register.</summary>
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        public async Task<IActionResult> Register([FromForm] Register model)
         {
-            if (dto == null)
+            _logger.LogInformation("Registration attempt for email: {Email}, UserName: {UserName}, Role: {Role}", 
+                model?.Email, model?.UserName, model?.Role);
+
+            // Set default Role if not provided
+            if (model != null && string.IsNullOrWhiteSpace(model.Role))
             {
-                return BadRequest(new { statusCode = 400, message = "بيانات التسجيل مطلوبة" });
+                model.Role = "Customer";
             }
 
-            var model = new Register
+            // Remove Role errors from ModelState since we set a default
+            if (ModelState.ContainsKey("Role"))
             {
-                UserName = dto.UserName?.Trim() ?? "",
-                Email = dto.Email?.Trim() ?? "",
-                Password = dto.Password ?? "",
-                PhoneNumber = string.IsNullOrWhiteSpace(dto.PhoneNumber) ? null : dto.PhoneNumber.Trim(),
-                Role = string.IsNullOrWhiteSpace(dto.Role) ? "Customer" : dto.Role.Trim(),
-                Image = null
-            };
+                ModelState.Remove("Role");
+            }
 
+            // Remove Image errors from ModelState (optional field - صورة اختيارية)
+            foreach (var key in ModelState.Keys.Where(k => k != null && (k.Equals("Image", StringComparison.OrdinalIgnoreCase) || k.EndsWith(".Image", StringComparison.OrdinalIgnoreCase))).ToList())
+            {
+                ModelState.Remove(key);
+            }
+            if (model != null && model.Image == null)
+            {
+                // تأكد أن الصورة اختيارية حتى لو الـ binding أضاف خطأ
+                model.Image = null;
+            }
+
+            // Remove PhoneNumber errors if empty (optional field)
+            if (ModelState.ContainsKey("PhoneNumber") && (model == null || string.IsNullOrWhiteSpace(model.PhoneNumber)))
+            {
+                ModelState.Remove("PhoneNumber");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.SelectMany(x => x.Value?.Errors ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.ModelBinding.ModelError>())
+                                      .Select(x => x.ErrorMessage)
+                                      .ToList();
+                _logger.LogWarning("ModelState validation failed: {Errors}", string.Join(", ", errors));
+                return BadRequest(CreateValidationErrorResponse());
+            }
+
+            if (model == null)
+            {
+                return BadRequest(CreateErrorResponse("Registration data is required"));
+            }
+
+            // Manual validation for required fields
             if (string.IsNullOrWhiteSpace(model.UserName))
             {
-                return BadRequest(new { statusCode = 400, message = "اسم المستخدم مطلوب", errors = new[] { "UserName is required" } });
+                return BadRequest(CreateErrorResponse("UserName is required"));
             }
+
             if (string.IsNullOrWhiteSpace(model.Email))
             {
-                return BadRequest(new { statusCode = 400, message = "البريد الإلكتروني مطلوب", errors = new[] { "Email is required" } });
+                return BadRequest(CreateErrorResponse("Email is required"));
             }
-            if (!model.Email.Contains("@") || model.Email.Length < 5)
-            {
-                return BadRequest(new { statusCode = 400, message = "تنسيق البريد الإلكتروني غير صحيح", errors = new[] { "Invalid email format" } });
-            }
+
             if (string.IsNullOrWhiteSpace(model.Password))
             {
-                return BadRequest(new { statusCode = 400, message = "كلمة المرور مطلوبة", errors = new[] { "Password is required" } });
-            }
-            if (model.Password.Length < 6)
-            {
-                return BadRequest(new { statusCode = 400, message = "كلمة المرور يجب أن تكون 6 أحرف على الأقل", errors = new[] { "Password must be at least 6 characters" } });
+                return BadRequest(CreateErrorResponse("Password is required"));
             }
 
             try
             {
                 var result = await _accountService.RegisterAsync(model);
-                _logger.LogInformation("Registration result: {StatusCode}, {Message}", result.StatusCode, result.Message);
+                _logger.LogInformation("Registration result: StatusCode={StatusCode}, Message={Message}", 
+                    result.StatusCode, result.Message);
                 return StatusCode(result.StatusCode, CreateResponse(result));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during registration for email: {Email}", model.Email);
+                _logger.LogError(ex, "Error during registration for email: {Email}", model?.Email);
                 return StatusCode(500, CreateErrorResponse("Registration failed"));
             }
         }

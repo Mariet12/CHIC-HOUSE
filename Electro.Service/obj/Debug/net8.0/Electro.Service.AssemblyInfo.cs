@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Electro.Service")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d4c33e7cba754b53bab5b9548ad466751f173551")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c38743e1db70fee80d571b49931568d1591102e7")]
 [assembly: System.Reflection.AssemblyProductAttribute("Electro.Service")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Electro.Service")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

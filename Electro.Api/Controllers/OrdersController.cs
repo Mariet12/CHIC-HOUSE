@@ -1,4 +1,4 @@
-using Electro.Core.Dtos.Checkout;
+﻿using Electro.Core.Dtos.Checkout;
 using Electro.Core.Dtos.Order;
 using Electro.Core.Interface;
 using Electro.Core.Models;
@@ -101,7 +101,6 @@ namespace Electro.Api.Controllers
         // ------- Admin only -------
 
         [HttpPut("{orderId:int}/status")]
-        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusDto dto)
         {
             try

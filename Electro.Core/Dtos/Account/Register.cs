@@ -1,18 +1,23 @@
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Electro.Core.Dtos.Account
 {
     public class Register
     {
-        [Required(ErrorMessage = "UserName is required")]
+        [Required]
         public string UserName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
+        [Required]
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Password is required")]
+        [Required]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
         public string Password { get; set; } = string.Empty;
 
@@ -20,7 +25,6 @@ namespace Electro.Core.Dtos.Account
 
         public string Role { get; set; } = "Customer";
 
-        /// <summary>صورة الملف الشخصي - اختيارية (لا تُطلب عند التسجيل).</summary>
         public IFormFile? Image { get; set; }
     }
 }

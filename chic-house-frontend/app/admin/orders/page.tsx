@@ -2,18 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { adminDashboardApi, ordersApi } from "@/lib/api";
+import { adminDashboardApi } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Truck, ChevronRight, ChevronLeft } from "lucide-react";
-import toast from "react-hot-toast";
-
-const ORDER_STATUS_OPTIONS = [
-  { value: "Pending", label: "في الانتظار" },
-  { value: "InProcessing", label: "قيد التنفيذ" },
-  { value: "Completed", label: "مكتمل (تم التسليم)" },
-  { value: "Cancelled", label: "ملغي" },
-] as const;
 
 export default function AdminOrdersPage() {
   const { token, user } = useAuth();
@@ -24,7 +16,6 @@ export default function AdminOrdersPage() {
   const pageSize = 10;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!token || user?.role?.toLowerCase() !== "admin") {
@@ -56,19 +47,6 @@ export default function AdminOrdersPage() {
   };
 
   const totalPages = Math.ceil(totalCount / pageSize) || 1;
-
-  const handleStatusChange = async (orderId: number, newStatus: string) => {
-    setUpdatingId(orderId);
-    try {
-      await ordersApi.updateStatus(orderId, newStatus);
-      toast.success("تم تحديث حالة الطلب");
-      fetchOrders();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "فشل تحديث الحالة");
-    } finally {
-      setUpdatingId(null);
-    }
-  };
 
   if (loading && orders.length === 0) {
     return (
@@ -133,25 +111,7 @@ export default function AdminOrdersPage() {
                         ? `${order.totalAmount} ج.م`
                         : "—"}
                   </td>
-                  <td className="p-3">
-                    <select
-                      value={order.status ?? "Pending"}
-                      onChange={(e) =>
-                        handleStatusChange(order.orderId ?? order.id, e.target.value)
-                      }
-                      disabled={updatingId === (order.orderId ?? order.id)}
-                      className="border rounded-lg px-2 py-1 text-sm bg-white min-w-[140px]"
-                    >
-                      {ORDER_STATUS_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                    {updatingId === (order.orderId ?? order.id) && (
-                      <span className="mr-2 text-xs text-gray-500">جاري التحديث...</span>
-                    )}
-                  </td>
+                  <td className="p-3">{order.status ?? "—"}</td>
                   <td className="p-3">
                     {order.createdAt
                       ? new Date(order.createdAt).toLocaleDateString("ar-EG")

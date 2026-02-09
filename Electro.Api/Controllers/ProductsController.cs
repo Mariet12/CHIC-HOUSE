@@ -1,4 +1,4 @@
-using Electro.Core.Dtos;
+﻿using Electro.Core.Dtos;
 using Electro.Core.Dtos.Product;
 using Electro.Core.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -118,16 +118,5 @@ namespace Electro.API.Controllers
             return Ok(new { statusCode = 200, message = "best-selling products", data });
         }
 
-        /// <summary>تحديث ترتيب ظهور المنتجات (للأدمن فقط)</summary>
-        [HttpPut("display-order")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> UpdateDisplayOrder([FromBody] UpdateDisplayOrderRequestDto request, CancellationToken ct = default)
-        {
-            if (request?.Updates == null || request.Updates.Count == 0)
-                return BadRequest(new { statusCode = 400, message = "يجب إرسال قائمة الترقيم (updates)." });
-            var list = request.Updates.Select(u => (u.ProductId, u.DisplayOrder)).ToList();
-            await _service.UpdateDisplayOrderAsync(list, ct);
-            return Ok(new { statusCode = 200, message = "تم تحديث الترتيب." });
-        }
     }
 }

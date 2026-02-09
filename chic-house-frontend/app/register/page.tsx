@@ -14,6 +14,7 @@ export default function RegisterPage() {
     phoneNumber: "",
     role: "Customer",
   });
+  const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const router = useRouter();
@@ -37,13 +38,23 @@ export default function RegisterPage() {
     
     setLoading(true);
     try {
-      await register({
-        userName: formData.userName.trim(),
-        email: formData.email.trim(),
-        password: formData.password,
-        role: formData.role || "Customer",
-        ...(formData.phoneNumber?.trim() && { phoneNumber: formData.phoneNumber.trim() }),
-      });
+      const formDataToSend = new FormData();
+      formDataToSend.append("UserName", formData.userName.trim());
+      formDataToSend.append("Email", formData.email.trim());
+      formDataToSend.append("Password", formData.password);
+      formDataToSend.append("Role", formData.role || "Customer");
+      
+      // إضافة PhoneNumber فقط إذا كان له قيمة
+      if (formData.phoneNumber && formData.phoneNumber.trim()) {
+        formDataToSend.append("PhoneNumber", formData.phoneNumber.trim());
+      }
+      
+      // إضافة Image فقط إذا كان موجوداً
+      if (image) {
+        formDataToSend.append("Image", image);
+      }
+
+      await register(formDataToSend);
       router.push("/login");
     } catch (error) {
       // Error handled in context (e.g., email already exists)
@@ -94,6 +105,15 @@ export default function RegisterPage() {
               value={formData.phoneNumber}
               onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">صورة الملف الشخصي</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setImage(e.target.files?.[0] || null)}
+              className="w-full px-4 py-2 border rounded-lg"
             />
           </div>
           <button

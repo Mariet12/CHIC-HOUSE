@@ -1,4 +1,4 @@
-using Electro.Core.Dtos;
+﻿using Electro.Core.Dtos;
 using Electro.Core.Dtos.Product;
 using System;
 using System.Collections.Generic;
@@ -18,8 +18,7 @@ namespace Electro.Core.Interface
             Task<bool> DeleteAsync(int id, CancellationToken ct = default);
         Task<IReadOnlyList<ProductDto>> GetLatestAsync(string? userId, int take = 10, CancellationToken ct = default);
         Task<IReadOnlyList<ProductDto>> GetBestSellingAsync(string? userId, int take = 10, int? days = null, CancellationToken ct = default);
-        /// <summary>تحديث ترتيب ظهور المنتجات حسب رغبة الأدمن.</summary>
-        Task<bool> UpdateDisplayOrderAsync(IReadOnlyList<(int productId, int displayOrder)> updates, CancellationToken ct = default);
+
     }
 
 }

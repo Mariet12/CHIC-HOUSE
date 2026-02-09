@@ -25,8 +25,6 @@ export default function AdminProductsPage() {
   const formRef = useRef<HTMLFormElement | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [displayOrderMap, setDisplayOrderMap] = useState<Record<number, number>>({});
-  const [savingOrder, setSavingOrder] = useState(false);
   const [form, setForm] = useState<ProductForm>({
     id: null,
     name: "",
@@ -72,25 +70,6 @@ export default function AdminProductsPage() {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleSaveDisplayOrder = async () => {
-    const updates = products.map((p) => ({
-      productId: p.id,
-      displayOrder: displayOrderMap[p.id] ?? p.displayOrder ?? 0,
-    }));
-    if (updates.length === 0) return;
-    setSavingOrder(true);
-    try {
-      await productsApi.updateDisplayOrder(updates);
-      toast.success("تم حفظ ترتيب المنتجات");
-      fetchData();
-      setDisplayOrderMap({});
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "فشل حفظ الترتيب");
-    } finally {
-      setSavingOrder(false);
-    }
-  };
 
   const getErrorMessage = (error: any) => {
     const apiData = error?.response?.data;
@@ -357,21 +336,9 @@ export default function AdminProductsPage() {
 
       {/* List */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-secondary-dark/50">
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-primary">المنتجات</h2>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">الإجمالي: {products.length}</span>
-            {products.length > 0 && (
-              <button
-                type="button"
-                disabled={savingOrder}
-                onClick={handleSaveDisplayOrder}
-                className="px-4 py-2 bg-secondary text-primary rounded-lg hover:bg-secondary-dark/50 disabled:opacity-50 text-sm"
-              >
-                {savingOrder ? "جاري الحفظ..." : "حفظ الترتيب"}
-              </button>
-            )}
-          </div>
+          <span className="text-sm text-gray-600">الإجمالي: {products.length}</span>
         </div>
         {loading ? (
           <p className="text-primary">جاري التحميل...</p>
@@ -382,7 +349,6 @@ export default function AdminProductsPage() {
             <table className="w-full text-right">
               <thead>
                 <tr className="border-b">
-                  <th className="p-2">الترتيب</th>
                   <th className="p-2">الصورة</th>
                   <th className="p-2">الاسم</th>
                   <th className="p-2">السعر</th>
@@ -393,20 +359,6 @@ export default function AdminProductsPage() {
               <tbody>
                 {products.map((p) => (
                   <tr key={p.id} className="border-b">
-                    <td className="p-2">
-                      <input
-                        type="number"
-                        min={0}
-                        value={displayOrderMap[p.id] ?? p.displayOrder ?? 0}
-                        onChange={(e) =>
-                          setDisplayOrderMap((prev) => ({
-                            ...prev,
-                            [p.id]: parseInt(e.target.value, 10) || 0,
-                          }))
-                        }
-                        className="w-16 border rounded px-2 py-1 text-center"
-                      />
-                    </td>
                     <td className="p-2">
                       {(() => {
                         // محاولة الحصول على URL الصورة بكل الطرق الممكنة

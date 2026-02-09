@@ -22,3 +22,4 @@ C:\Users\marie\Desktop\HAND MADE\Electro.Core\obj\Release\net8.0\Electro.Core.dl
 C:\Users\marie\Desktop\HAND MADE\Electro.Core\obj\Release\net8.0\refint\Electro.Core.dll
 C:\Users\marie\Desktop\HAND MADE\Electro.Core\obj\Release\net8.0\Electro.Core.pdb
 C:\Users\marie\Desktop\HAND MADE\Electro.Core\obj\Release\net8.0\ref\Electro.Core.dll
+C:\Users\marie\Desktop\HAND MADE\Electro.Core\obj\Release\net8.0\Electro.Core.sourcelink.json

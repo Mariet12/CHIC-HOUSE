@@ -32,3 +32,4 @@ C:\Users\marie\Desktop\HAND MADE\Electro.Reposatory\obj\Release\net8.0\refint\El
 C:\Users\marie\Desktop\HAND MADE\Electro.Reposatory\obj\Release\net8.0\Electro.Reposatory.pdb
 C:\Users\marie\Desktop\HAND MADE\Electro.Reposatory\obj\Release\net8.0\Electro.Reposatory.genruntimeconfig.cache
 C:\Users\marie\Desktop\HAND MADE\Electro.Reposatory\obj\Release\net8.0\ref\Electro.Reposatory.dll
+C:\Users\marie\Desktop\HAND MADE\Electro.Reposatory\obj\Release\net8.0\Electro.Reposatory.sourcelink.json
