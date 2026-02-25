@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.IO;
 using Electro.Apis.Extentions;
 using Electro.Core.Errors;
 using Electro.Core.Interface;
@@ -10,18 +11,29 @@ using Microsoft.AspNetCore.Identity;
 using Electro.Core.Models.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// تهيئة Firebase (اختياريّة – لا توقف تشغيل الـ API لو الملف مش موجود)
 try
 {
-    string pathToCredentials = Path.Combine(Environment.CurrentDirectory, "wwwroot", "elctro-ed5d4-firebase-adminsdk-fbsvc-1680ef9784.json");
-    FirebaseApp.Create(new AppOptions()
+    var contentRoot = builder.Environment.ContentRootPath;
+    var pathToCredentials = Path.Combine(contentRoot, "wwwroot", "elctro-ed5d4-firebase-adminsdk-fbsvc-1680ef9784.json");
+
+    if (File.Exists(pathToCredentials))
     {
-        Credential = GoogleCredential.FromFile(pathToCredentials),
-    });
+        FirebaseApp.Create(new AppOptions
+        {
+            Credential = GoogleCredential.FromFile(pathToCredentials),
+        });
+    }
+    else
+    {
+        Console.WriteLine($"[Firebase] Credentials file not found at: {pathToCredentials}. Skipping Firebase initialization.");
+    }
 }
 catch (Exception ex)
 {
-    Console.WriteLine("Error initializing Firebase: " + ex.Message);
-    throw; // لإظهار تفاصيل الخطأ في سجلات التطبيق
+    Console.WriteLine("[Firebase] Error initializing Firebase: " + ex.Message);
+    // لا نرمي الاستثناء هنا حتى لا يتوقف الـ API بالكامل
 }
 // ===== Controllers & JSON =====
 builder.Services.AddControllers()
