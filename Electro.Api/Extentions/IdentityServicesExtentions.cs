@@ -1,11 +1,13 @@
 using eBook.Core.Interface;
 using eBook.Services;
 using Electro.Core.Interface;
+using Electro.Core.Interfaces;
 using Electro.Core.Models.Identity;
 using Electro.Core.Services;
 using Electro.Reposatory.Data.Identity;
 using Electro.Service;
 using Electro.Services;
+using Electro.services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -133,6 +135,7 @@ namespace Electro.Apis.Extentions
             services.AddScoped<IFirebaseProvider, FirebaseProvider>();
             services.AddScoped<ICommunicationMethodsService, CommunicationMethodsService>();
             services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<IChatService, ChatService>();
 
             // ===== Request size limits =====
             services.Configure<IISServerOptions>(o => o.MaxRequestBodySize = 102_428_800);

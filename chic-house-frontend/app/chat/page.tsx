@@ -294,7 +294,7 @@ export default function ChatPage() {
                   <div className="flex-1">
                     <p className="font-bold">{conv.userName}</p>
                     <p className="text-sm text-gray-500 truncate">
-                      {conv.lastMessage || "لا توجد رسائل"}
+                      {conv.lastMessageContent || conv.lastMessage || "لا توجد رسائل"}
                     </p>
                   </div>
                 </div>
@@ -315,12 +315,12 @@ export default function ChatPage() {
                   <div
                     key={idx}
                     className={`flex ${
-                      msg.sender?.senderId === user?.id ? "justify-end" : "justify-start"
+                      msg.senderId === user?.id ? "justify-end" : "justify-start"
                     }`}
                   >
                     <div
                       className={`max-w-xs p-3 rounded-lg ${
-                        msg.sender?.senderId === user?.id
+                        msg.senderId === user?.id
                           ? "bg-primary text-white"
                           : "bg-secondary"
                       }`}
